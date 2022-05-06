@@ -60,28 +60,28 @@ app.post('/api/join', (req, res) => {
   accessDB_post(req, res, sql, parameterList)
 })
 
-// 2. 아이디 중복 검사
-app.post('/api/checkid', (req, res) =>{
+//id 중복검사
+app.post('/api/checkid',(req, res) =>{
   const mail = req.body.mail;
-  // console.log(req.body);
   console.log(req.body);
-  console.log(req.params);
-  console.log(req.headers);
-  console.log(req.query);
+  // console.log(req);
 
-  const sql ='select mail from memberinfo where mail=?'
+  const sql ='select mail from memberinfo where mail=?';
   con.query(sql, req.body.mail, function (err, row, fields){
-    let checkid = false;
-    if(row === undefined){ //중복되는게 없으면
-      checkid =true;// 사용가능
+    let checkid;
+    checkid=false;
+    console.log(row);
+    if(row.length == 0){ //중복되는게 없으면
+      checkid = true;// 사용가능
       res.send({checkid: checkid});// 다시 checkid 객체를 클아이언트로 보낸다
     }
     else{
-      checkid=false; // 중복되서 사용 불가
+      checkid=false; // 중복돼서 사용 불가
       res.send({checkid: checkid});
     }
   })
 })
+
 
 // 3. 로그인
 app.post('/api/login', (req, res) => {
