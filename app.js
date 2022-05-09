@@ -7,6 +7,8 @@ const path = require('path')
 const loginRouter = require('./routes/login')
 const jwt = require('./modules/jwt')
 const authUtil = require('./middlewares/auth').checkToken
+const fs = require('fs');
+const multer   = require('multer');
 
 const con = mysql.createConnection({
   host: 'localhost',
@@ -14,6 +16,43 @@ const con = mysql.createConnection({
   password: '1234',
   database: 'Today_workout_complete',
 });
+
+// const upload = multer({
+//   dest: 'uploads/'
+// });
+
+// const multiImg = upload.fields([{ name: 'background', maxCount: 1 }, { name: 'profiles', maxCount: 3 }]);
+
+// app.post('/profile', upload.single('image'), UserController.uploadImage);
+
+// const util = require('../modules/util');
+// var multer = require('multer');
+
+// module.exports = {
+//     uploadImage: async (req, res) => {
+//         const image = req.file.path;
+//         if (image === undefined) {
+//             return res.status(400).send(util.fail(400, "이미지가 존재하지 않습니다."));
+//         }
+//         res.status(200).send(util.success(200, "요청 성공 〰️ ", image));
+//     }
+// }
+
+// const imageSavePath = 'public/images/'; 
+// const storage = multer.diskStorage({ 
+//   //파일저장경로 
+//   destination(req, file, callback){ 
+//     callback(null, imageSavePath) 
+//   }, 
+//   //저장되는 파일이름 형식 커스텀 가능 
+//   filename(req, file, callback){ 
+//     callback(null, file.originalname) } 
+//   }); 
+// const upload = multer({storage : storage}); 
+// app.post('/api/up',upload.single('upLoadImage'),async (req, res, next) => { 
+//   console.log(req.file);
+
+// });
 
 app.use(express.static('public'))
 
@@ -81,7 +120,33 @@ app.post('/api/checkid',(req, res) =>{
     }
   })
 })
+//비밀번호변경전 확인
+app.post('/api/checkPassword',(req, res) =>{
+  const password = req.body.password;
+  console.log(req.body);
+  // console.log(req);
 
+  const sql ='select password from memberinfo where password=?';
+  con.query(sql, req.body.password, function (err, row, fields){
+    let checkid;
+    checkid=false;
+    console.log(row);
+    if(row.length == 0){ //중복되는게 없으면
+      checkid = False;// 사용가능
+      res.send({checkid: checkid});// 다시 checkid 객체를 클아이언트로 보낸다
+    }
+    else{
+      checkid=true; // 중복돼서 사용 불가
+      res.send({checkid: checkid});
+    }
+  })
+})
+//비밀번호 변경
+app.patch('/api/updatePassword',(req, res)=>{
+  const sql = 'update memberinfo set password=? where mail=?';
+  const parameterList = [req.body.password, req.body.mail]
+  accessDB_post(req, res, sql, parameterList);
+})
 
 // 3. 로그인
 app.post('/api/login', (req, res) => {
@@ -134,6 +199,8 @@ app.get('/api/getPost',(req, res)=>{
   accessDB_get(req, res, sql, parameterList)
 
 })
+app.get()
+
 
 // 6. 댓글 생성
 app.post('/api/comments', (req, res) => {
