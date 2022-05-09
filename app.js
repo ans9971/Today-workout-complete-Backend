@@ -49,7 +49,7 @@ app.get('/api/board', (req, res) => {
 app.post('/api/join', (req, res) => {
 
   // 프로필 이미지 저장 및 경로 빼오기
-  const profile_img_path = 'default'
+  const profile_img_path = '/img/userProfile/default.png'
 
   const sql = "INSERT INTO memberinfo VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, '1', default, default, null, null, 1, 1)"
   const parameterList = [req.body.mail, req.body.password, req.body.name,  req.body.introduction,
