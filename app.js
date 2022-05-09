@@ -128,16 +128,14 @@ app.post('/api/checkPassword',(req, res) =>{
 
   const sql ='select password from memberinfo where password=?';
   con.query(sql, req.body.password, function (err, row, fields){
-    let checkid;
-    checkid=false;
+    let checkPassword=false;
     console.log(row);
     if(row.length == 0){ //중복되는게 없으면
-      checkid = False;// 사용가능
-      res.send({checkid: checkid});// 다시 checkid 객체를 클아이언트로 보낸다
+      res.send({checkPassword: checkPassword});// 다시 checkPassword 객체를 클아이언트로 보낸다
     }
     else{
-      checkid=true; // 중복돼서 사용 불가
-      res.send({checkid: checkid});
+      checkPassword=true; // 중복돼서 사용 불가
+      res.send({checkPassword: checkPassword});
     }
   })
 })
