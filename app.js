@@ -14,7 +14,7 @@ const con = mysql.createConnection({
   password: '1234',
   database: 'Today_workout_complete',
 });
-
+ 
 app.use(express.static('public'))
 
 // application/json
@@ -61,23 +61,23 @@ app.post('/api/join', (req, res) => {
 })
 
 // 2. 아이디 중복 검사
-app.post('/api/checkid', (req, res) =>{
+//id 중복검사
+app.post('/api/checkid',(req, res) =>{
   const mail = req.body.mail;
-  // console.log(req.body);
   console.log(req.body);
-  console.log(req.params);
-  console.log(req.headers);
-  console.log(req.query);
+  // console.log(req);
 
-  const sql ='select mail from memberinfo where mail=?'
+  const sql ='select mail from memberinfo where mail=?';
   con.query(sql, req.body.mail, function (err, row, fields){
-    let checkid = false;
-    if(row === undefined){ //중복되는게 없으면
-      checkid =true;// 사용가능
+    let checkid;
+    checkid=false;
+    console.log(row);
+    if(row.length == 0){ //중복되는게 없으면
+      checkid = true;// 사용가능
       res.send({checkid: checkid});// 다시 checkid 객체를 클아이언트로 보낸다
     }
     else{
-      checkid=false; // 중복되서 사용 불가
+      checkid=false; // 중복돼서 사용 불가
       res.send({checkid: checkid});
     }
   })
@@ -232,6 +232,34 @@ function accessDB_post(req, res, sql, parameterList) {
     }
   });
 }
+
+// 비밀번호변경전 확인
+app.post('/api/checkPassword',(req, res) =>{
+  const password = req.body.password;
+  console.log(req.body);
+  // console.log(req);
+
+  const sql ='select password from memberinfo where password=?';
+  con.query(sql, req.body.password, function (err, row, fields){
+    let checkid;
+    checkid=false;
+    console.log(row);
+    if(row.length == 0){ //중복되는게 없으면
+      checkid = False;// 사용가능
+      res.send({checkid: checkid});// 다시 checkid 객체를 클아이언트로 보낸다
+    }
+    else{
+      checkid=true; // 중복돼서 사용 불가
+      res.send({checkid: checkid});
+    }
+  })
+})
+//비밀번호 변경
+app.patch('/api/updatePassword',(req, res)=>{
+  const sql = 'update memberinfo set password=? where mail=?';
+  const parameterList = [req.body.password, req.body.mail]
+  accessDB_post(req, res, sql, parameterList);
+})
 
 //라우터에서 설정되어 있지 않은 주소로 접속하려 할때
 app.all('*', (req, res) => {
