@@ -139,6 +139,7 @@ app.post('/api/checkPassword',(req, res) =>{
     }
   })
 })
+
 //비밀번호 변경
 app.patch('/api/updatePassword',(req, res)=>{
   const sql = 'update memberinfo set password=? where mail=?';
@@ -216,6 +217,19 @@ app.post('/api/comments', (req, res) => {
   accessDB_post(req, res, sql, parameterList)
 })
 
+//아이디 찾기
+app.get('/api/getId', (req,res) =>{
+  const sql = 'select mail from memberinfo where nickname = ?'
+  const parameterList=[req.body.nickname]
+  accessDB_get(req, res, sql, parameterList);
+})
+
+//비밀번호 찾기
+app.get('/api/getPassword', (req,res) =>{
+  const sql = 'select password from memberinfo where mail = ?'
+  const parameterList=[req.body.mail]
+  accessDB_get(req, res, sql, parameterList);
+})
 
 
 // 7. 게시물 제목 검색 기능 코드
