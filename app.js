@@ -17,43 +17,6 @@ const con = mysql.createConnection({
   database: 'Today_workout_complete',
 });
 
-// const upload = multer({
-//   dest: 'uploads/'
-// });
-
-// const multiImg = upload.fields([{ name: 'background', maxCount: 1 }, { name: 'profiles', maxCount: 3 }]);
-
-// app.post('/profile', upload.single('image'), UserController.uploadImage);
-
-// const util = require('../modules/util');
-// var multer = require('multer');
-
-// module.exports = {
-//     uploadImage: async (req, res) => {
-//         const image = req.file.path;
-//         if (image === undefined) {
-//             return res.status(400).send(util.fail(400, "이미지가 존재하지 않습니다."));
-//         }
-//         res.status(200).send(util.success(200, "요청 성공 〰️ ", image));
-//     }
-// }
-
-// const imageSavePath = 'public/images/'; 
-// const storage = multer.diskStorage({ 
-//   //파일저장경로 
-//   destination(req, file, callback){ 
-//     callback(null, imageSavePath) 
-//   }, 
-//   //저장되는 파일이름 형식 커스텀 가능 
-//   filename(req, file, callback){ 
-//     callback(null, file.originalname) } 
-//   }); 
-// const upload = multer({storage : storage}); 
-// app.post('/api/up',upload.single('upLoadImage'),async (req, res, next) => { 
-//   console.log(req.file);
-
-// });
-
 app.use(express.static('public'))
 
 // application/json
@@ -120,7 +83,7 @@ app.post('/api/checkid',(req, res) =>{
     }
   })
 })
-//비밀번호변경전 확인
+// 비밀번호변경전 확인
 app.post('/api/checkPassword',(req, res) =>{
   const password = req.body.password;
   console.log(req.body);
@@ -128,14 +91,16 @@ app.post('/api/checkPassword',(req, res) =>{
 
   const sql ='select password from memberinfo where password=?';
   con.query(sql, req.body.password, function (err, row, fields){
-    let checkPassword=false;
+    let checkid;
+    checkid = false;
     console.log(row);
     if(row.length == 0){ //중복되는게 없으면
-      res.send({checkPassword: checkPassword});// 다시 checkPassword 객체를 클아이언트로 보낸다
+      checkid = false;// 사용가능
+      res.send({checkid: checkid});// 다시 checkid 객체를 클아이언트로 보낸다
     }
     else{
-      checkPassword=true; // 중복돼서 사용 불가
-      res.send({checkPassword: checkPassword});
+      checkid = true; // 중복돼서 사용 불가
+      res.send({checkid: checkid});
     }
   })
 })
@@ -198,7 +163,7 @@ app.get('/api/getPost',(req, res)=>{
   accessDB_get(req, res, sql, parameterList)
 
 })
-app.get()
+//app.get()
 
 
 // 6. 댓글 생성
@@ -218,19 +183,18 @@ app.post('/api/comments', (req, res) => {
 })
 
 //아이디 찾기
-app.get('/api/getId', (req,res) =>{
-  const sql = 'select mail from memberinfo where nickname = ?'
-  const parameterList=[req.body.nickname]
+app.get('/api/findId', (req,res) =>{
+  const sql = 'select mail from memberinfo where uesr_name = ? and phonenumber = ?'
+  const parameterList=[req.body.user_name, req.body.phonenumber]
   accessDB_get(req, res, sql, parameterList);
 })
 
-//비밀번호 찾기
-app.get('/api/getPassword', (req,res) =>{
-  const sql = 'select password from memberinfo where mail = ?'
-  const parameterList=[req.body.mail]
+// 비밀번호 찾기
+app.get('/api/findPassword', (req,res) => {
+  const sql = 'select password from memberinfo where mail = ? and uesr_name = ? and phonenumber = ?'
+  const parameterList=[req.query.mail,req.query.uesr_name, req.query.phonenumber]
   accessDB_get(req, res, sql, parameterList);
 })
-
 
 // 7. 게시물 제목 검색 기능 코드
 app.get('/api/searchTitle',(req,res)=>{
@@ -319,9 +283,3 @@ app.all('*', (req, res) => {
 
 app.listen(port, () => console.log('Example prot: ${port}'))
 
-// con.query(sql, [req.body.mail, req.body.password, req.body.name,  req.body.introduction,
-//    req.body.phonenumber, req.body.sex, req.body.nickname,  profile_img_path], function (err, result, fields) {
-//   if (err) throw err;
-//   console.log(result);
-//   res.send(result)
-// });
