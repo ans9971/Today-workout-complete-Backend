@@ -235,7 +235,7 @@ function accessDB_get(req, res, sql, parameterList) {
           res.send(result);
           break;
         default:
-          result = "success"
+          //result = "success"
           res.send(result)
           break;
       }
@@ -268,7 +268,7 @@ function accessDB_post(req, res, sql, parameterList) {
           res.send({token: loginJwtToken.token, result: result})
           break
         default:
-          result = "success"
+          //result = "success"
           res.send(result)
           break
       }
