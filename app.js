@@ -17,6 +17,17 @@ const con = mysql.createConnection({
   database: 'Today_workout_complete',
 });
 
+
+let storage  = multer.diskStorage({ // 2
+  destination(req, file, cb) {
+    cb(null, 'public/img/userProfile/');
+  },
+  filename(req, file, cb) {
+    cb(null, `${req.body.nickname}_${file.originalname}`);
+  },
+});
+let upload = multer({ storage: storage });
+
 app.use(express.static('public'))
 
 // application/json
@@ -35,6 +46,8 @@ con.connect(function(err) {
 
 app.get('/', (req, res) => res.send('Hellosdfsd'))
 
+
+
 app.get('/api/board', (req, res) => {
   const sql = "SELECT * FROM board"
   console.log(req.ip);
@@ -46,6 +59,9 @@ app.get('/api/board', (req, res) => {
 
   accessDB_get(res, sql, [])
 });
+
+
+
 
 // 1. 회원가입
 app.post('/api/join', (req, res) => {
@@ -83,6 +99,10 @@ app.post('/api/checkid',(req, res) =>{
     }
   })
 })
+
+
+
+
 // 비밀번호변경전 확인
 app.post('/api/checkPassword',(req, res) =>{
   const password = req.body.password;
@@ -104,6 +124,8 @@ app.post('/api/checkPassword',(req, res) =>{
     }
   })
 })
+
+//'update memberinfo set mail=? and name= ? and introduction= ? and profile_img_path= ? where nickname= ?'
 
 //비밀번호 변경
 app.patch('/api/updatePassword',(req, res)=>{
@@ -152,10 +174,10 @@ app.post('/api/createPost', (req, res)=>{
 })
 
 // 게시글 가져오기
-app.get('/api/getPost',(req, res)=>{
+app.get('/api/getPostAll',(req, res)=>{
 
-  const sql = "SELECT * FROM post where board_id =? limit ?,?"
-  const parameterList =[parseInt(req.query.board_id),parseInt(req.query.limit),parseInt(req.query.limit)+9]
+  const sql = "SELECT * FROM post where limit ?,?"
+  const parameterList =[parseInt(req.query.limit),parseInt(req.query.limit)+9]
   console.log(req.query);
   console.log(parameterList);
 
@@ -163,8 +185,26 @@ app.get('/api/getPost',(req, res)=>{
   accessDB_get(req, res, sql, parameterList)
 
 })
-//app.get()
 
+// 게시글 가져오기
+app.get('/api/getPost',(req, res)=>{
+  let board_id = 0;
+  const sql = `SELECT * FROM post where board_id = ? limit ?,?`
+  const parameterList =[parseInt(req.query.board_id),parseInt(req.query.limit),parseInt(req.query.limit)+9]
+  console.log(req.query);
+  console.log(parameterList);
+
+  console.log(req.path);
+ccc
+
+})
+
+//mypage 자기가 쓴 게시글 전부 가져오기
+app.get('/api/myPagePost',(req,res)=>{
+  const sql ='select * from post where nickname =? limit ?,?'
+  const parameterList=[req.query.nickname,parseInt(req.query.limit),parseInt(req.query.limit)+9]
+  accessDB_get(req, res, sql, parameterList)
+})
 
 // 6. 댓글 생성
 app.post('/api/comments', (req, res) => {
@@ -182,6 +222,14 @@ app.post('/api/comments', (req, res) => {
   accessDB_post(req, res, sql, parameterList)
 })
 
+app.get('/api/showMyPost',(req,res)=>{
+  const sql = 'select * from post where nickname = ?'
+  const parameterList=[req.body.nickname]
+  accessDB_get(req, res, sql, parameterList);
+})
+
+//sql = 'select * from post where mail = ? '
+
 //아이디 찾기
 app.get('/api/findId', (req,res) =>{
   const sql = 'select mail from memberinfo where uesr_name = ? and phonenumber = ?'
@@ -194,6 +242,29 @@ app.get('/api/findPassword', (req,res) => {
   const sql = 'select password from memberinfo where mail = ? and uesr_name = ? and phonenumber = ?'
   const parameterList=[req.query.mail,req.query.uesr_name, req.query.phonenumber]
   accessDB_get(req, res, sql, parameterList);
+})
+
+//게시글 수정
+app.post('/api/updatePost', (req, res)=>{
+
+  const sql = "INSERT INTO post VALUES (NULL, ?, ?,?,?,?,?,DEFAULT,NULL,NULL, DEFAULT, DEFAULT,?,DEFAULT)"
+  const parameterList =[req.body.board_id, req.body.nickname, req.body.title, req.body.content, req.ip, req.body.photographic_path,req.body.availability_comments ];
+
+  console.log(req.body);
+  accessDB_post(req, res, sql, parameterList)
+})
+//게시글 삭제
+app.delete('/api/deletePost', (req,res)=>{
+  const sql = 'delete from post where nickname=? and title= ?'
+  const parameterList=[req.body.nickname, req.body.title]
+  accessDB_post(req, res, sql, parameterList);
+})
+
+//유저정보삭제
+app.delete('/api/deleteUserInfo', (req,res)=>{
+  const sql = 'delete from memberinfo where mail= ?'
+  const parameterList=[req.body.mail]
+  accessDB_post(req, res, sql, parameterList);
 })
 
 // 7. 게시물 제목 검색 기능 코드
