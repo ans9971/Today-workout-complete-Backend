@@ -57,7 +57,7 @@ app.use(express.static('public'))
 app.use(express.json());
 // application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }))
-app.use('/login', loginRouter)
+// app.use('/login', loginRouter)
 
 //비밀번호변경전 확인
 app.post('/api/checkPassword',(req, res) =>{
@@ -97,19 +97,41 @@ app.post('/uploadFile', upload.single('recfile'), function(req,res){ // 7
   res.send("-----")
 });
 
+// // 5. 게시글 생성
+// app.post('/api/createPost', upload.single('photographic_path'), (req, res)=>{
+
+//   const sql = "INSERT INTO post VALUES (NULL, ?, ?,?,?,?,?,DEFAULT,NULL,NULL, DEFAULT, DEFAULT,?,DEFAULT)"
+
+//   console.log(req.body);
+//   console.log(req.file);
+  
+//   let newFileName = req.file.filename
+
+//   if(newFileName==undefined)
+//     console.log("사진 없음!");
+
+//   const parameterList =[req.body.board_id, req.body.nickname, req.body.title, req.body.content, req.ip, newFileName,req.body.availabilty_comments ];
+
+//   console.log(req.body);
+//   accessDB_post(req, res, sql, parameterList)
+// })
+
 // 유저 정보 변경(이메일, 이름, 자기소개, 이미지)
 app.patch('/api/updateMyInfo', upload.single('profileImage'), function(req,res){ 
-  const sql = 'update memberinfo set nickname = ?, introduction = ?, profile_img_path = ?  where mail = ?';
+  const sql = 'update memberinfo set uesr_name = ?, introduction = ?, profile_img_path = ?  where mail = ?';
   console.log(req.body);
   console.log(req.file);
 
   let newFileName = req.file.filename
   if(newFileName==undefined)
-    newFileName = req.body.profile_img_path
-  
+      newFileName = req.body.profile_img_path
+
   // 기존 이미지 파일 삭제 코드
   console.log(PROFILE_IMG_DIR+'/' + req.body.profile_img_path);
-  clean(PROFILE_IMG_DIR + '/' + req.body.profile_img_path);
+  if(req.body.profile_img_path != undefined){
+
+    clean(PROFILE_IMG_DIR + '/' + req.body.profile_img_path);
+  }
 
   accessDB_patch(req, res, sql, [req.body.name, req.body.introduction, newFileName, req.body.mail])
 });
@@ -140,7 +162,7 @@ app.get('/api/board', (req, res) => {
 app.post('/api/join', (req, res) => {
 
   // 프로필 이미지 저장 및 경로 빼오기
-  const profile_img_path = 'default'
+  const profile_img_path = 'default.png'
 
   const sql = "INSERT INTO memberinfo VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, '1', default, default, null, null, 1, 1)"
   const parameterList = [req.body.mail, req.body.password, req.body.name,  req.body.introduction,
@@ -240,6 +262,25 @@ app.post('/api/createPost', upload.single('photographic_path'), (req, res)=>{
   accessDB_post(req, res, sql, parameterList)
 })
 
+
+//게시글 수정
+app.patch('/api/updatePost', upload.single('photographic_path'), (req, res)=>{
+
+  const sql = "update post set photographic_path=?, title=?, content=? where board_id=?, post_id=?, nickname=?"
+
+  console.log(req.body);
+  console.log(req.file);
+  
+  let newFileName = req.file.filename
+
+  if(newFileName==undefined)
+    console.log("사진 없음!");
+
+  const parameterList =[newFileName, req.body.title, req.body.content, req.body.board_id, req.body.post_id, req.body.nickname];
+
+  console.log(req.body);
+  accessDB_put(req, res, sql, parameterList)
+})
 // // 게시글 가져오기 유산 ^~^
 // app.get('/api/getPost',(req, res)=>{
 
@@ -256,7 +297,7 @@ app.post('/api/createPost', upload.single('photographic_path'), (req, res)=>{
 //커뮤니티 게시글 최신순부터 나열
 app.get('/api/showPostDesc',(req,res) => {
   const sql = 'SELECT * FROM post ORDER BY creation_datetime desc limit ?,? '
-  const parameterList=[req.query.nickname, parseInt((req.query.limit-1)*9),9]
+  const parameterList=[parseInt(req.query.limit),parseInt(req.query.limit)+9]
 
   accessDB_get(req, res, sql, parameterList)
 })
@@ -281,29 +322,6 @@ app.get('/api/getPostAll',(req, res)=>{
 
 })
 
-// 상세게시글 가져오기
-app.get('/api/getPostDetail',(req, res)=>{
-
-  const sql = "SELECT * FROM post where post_id =? "
-  const parameterList =[parseInt(req.query.board_id), parseInt(req.query.limit), parseInt(req.query.limit) + 1000]
-  console.log(req.query);
-  console.log(parameterList);
-
-  console.log(req.path);
-  accessDB_get(req, res, sql, parameterList)
-
-})
-app.get('/api/showCategorySelect',(req, res)=>{
-
-  const sql = "SELECT * FROM post where board_id =? limit ?,?"
-  const parameterList =[parseInt(req.query.board_id), parseInt(req.query.limit), parseInt(req.query.limit) + 1000]
-  console.log(req.query);
-  console.log(parameterList);
-
-  console.log(req.path);
-  accessDB_get(req, res, sql, parameterList)
-
-})
 // 6. 댓글 생성
 app.post('/api/comments', (req, res) => {
 
@@ -345,14 +363,6 @@ app.get('/api/showComments',(req,res)=>{
   console.log(',,m4');
 })
 
-//댓글 수정
-app.post('/api/updateComment',(req,res) => {
-  const sql = "update comments set content=? where nickname=? and post_id=? and Comments_id =?"
-  const parameterList =[req.query.content, req.query.nickname, req.query.post_id, req.query.comments_id]
-  accessDB_post()
-})
-
-
 
 // 7. 게시물 제목 검색 기능 코드
 app.get('/api/searchTitle',(req,res)=>{
@@ -362,7 +372,7 @@ app.get('/api/searchTitle',(req,res)=>{
   const sql = "select * from post where title LIKE " + "'%"+req.query.title+"%'"
   console.log(sql);
   
-  con.query(sql ,function(err,result, fields){
+  con.query(sql ,function(err, result, fields){
     if (err) {
       console.log(err);
       res.send("failure")
@@ -383,17 +393,19 @@ function accessDB_get(req, res, sql, parameterList) {
       console.log(err);
       res.send("failure")
     } else if(result == undefined) {
+      console.log('-----undefined----');
       res.send("failure")
     } else {
       console.log("쿼리 결과");
       console.log(result, req.path);
       switch (req.path){
-        case '/api/getPost':
+        case '/api/getPostAll':
           console.log('getPost11111');
           res.send(result);
           break;
         default:
-          res.send(result)
+          res.send(result);
+          console.log('aa', result);
           break;
       }
     }
@@ -440,7 +452,7 @@ function accessDB_put(req, res, sql, parameterList) {
       res.send("failure")
     } else {
       console.log(result);
-      res.send(result)
+      res.send("success")
     }
   });
 }
@@ -460,7 +472,7 @@ function accessDB_patch(req, res, sql, parameterList) {
 
 app.get('/api/myPagePost',(req,res)=>{
   const sql = 'select * from post where nickname =? limit ?,?'
-  const parameterList=[req.query.nickname, parseInt((req.query.limit-1)*9),9]
+  const parameterList=[req.query.nickname, parseInt(req.query.limit),parseInt(req.query.limit) + 9]
   accessDB_get(req, res, sql, parameterList)
 })
 
@@ -504,15 +516,15 @@ app.listen(port, () => {
   
   // public/img 폴더 없으면 생성
   if (!fs.existsSync(IMG_DIR)) fs.mkdirSync(IMG_DIR);
-  else console.log("--------------");
+  else console.log("———————");
 
   // public/img/userProfile 폴더 없으면 생성
   if (!fs.existsSync(PROFILE_IMG_DIR)) fs.mkdirSync(PROFILE_IMG_DIR);
-  else console.log("--------------");
+  else console.log("———————");
 
   // public/img/postPhoto 폴더 없으면 생성
   if (!fs.existsSync(POST_IMG_DIR)) fs.mkdirSync(POST_IMG_DIR);
-  else console.log("--------------");
+  else console.log("———————");
 
   console.log('Example prot: ${port}')
 })
