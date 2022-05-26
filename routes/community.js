@@ -70,29 +70,7 @@ router.get('/getBoard', (req, res) => {
     accessDB_get(res, sql, []);
 })
 
-// 5. 게시글 생성
-router.post('/createPost', upload.single('photographic_path'), (req, res)=>{
-  
-    const sql = "INSERT INTO post VALUES (NULL, ?, ?,?,?,?,?,DEFAULT,NULL,NULL, DEFAULT, DEFAULT,?,DEFAULT)"
-  
-    console.log(req.body);
-    console.log(req.file);
-    let defaultphotographicfile='default.png'
-    if(req.file!=undefined){
-      newFileName = req.file.filename
-    }else{
-        newFileName=defaultphotographicfile
-    }
-    if(newFileName==undefined){
-      newFileName = defaultphotographicfile
-    }
-    
-    const parameterList =[req.body.board_id, req.body.nickname, req.body.title, req.body.content, req.ip, newFileName,req.body.availabilty_comments ];
-  
-    console.log(req.body);
-    accessDB_post(req, res, sql, parameterList)
-})
-  
+
 // 게시글 가져오기
 router.get('/getPost',(req, res)=>{
   
@@ -115,39 +93,64 @@ router.delete('/deletePost', (req,res)=>{
   
 // 6. 댓글 생성
 router.post('/comments', (req, res) => {
+
+  const sql = "INSERT INTO comments (post_id, nickname, parent_comment_id, ip, content) VALUES (?,?,?,?,?)"
+  let parent_comments_id;
+
+  // if (req.body.parent_comments_id == 0)
+  //  parent_comments_id = null
+  parent_comment_id = null
+  // ip=null;
+  // post_id=5;
+  delete_stats=1;
+  const parameterList = [req.body.post_id, req.body.nickname, req.body.parent_comment_id,req.ip, req.body.content]
   
-    const sql = "INSERT INTO comments VALUES (NULL, ?, ?, ?, ?, ?, 0, DEFAULT, NULL)"
-    let parent_comments_id;
-  
-    if (req.body.parent_comments_id == 0)
-     parent_comments_id = null
-    const parameterList = [req.body.post_id, req.body.nickname, parent_comments_id, req.ip, req.body.content]
-    
-    console.log(req.body);
-    console.log(req.ip);
-  
-    accessDB_post(req, res, sql, parameterList)
+  console.log(req.body);
+  console.log("ip는"+req.ip);
+
+  accessDB_post(req, res, sql, parameterList)
 })
 
-// 해당 게시물 댓글 가져오기
-router.get('/showComments',(req,res)=>{
-  // let id = parseInt(req.query.post_id);
-  // console.log(id);
-
+// 게시물 모든 댓글 보여주기
+router.get('/api/showComments',(req,res)=>{
+  let id = parseInt(req.query.post_id);
+  console.log(parseInt(id));
   const sql = "select * from comments where post_id=?"
   const parameterList=[req.query.post_id]
-
+  // accessDB_get[req,res, sql, parameterList]
   con.query(sql, parameterList, async function (err, result, fields) {
     if (err) {
       console.log(err);
     } else if(result == undefined) {
+      console.log('jjj');
       res.send("failure")
     } else {
       console.log(result);
       res.send(result);
     }
   });
+  console.log(',,m4');
 })
+
+// 해당 게시물 댓글 가져오기
+// router.get('/showComments',(req,res)=>{
+//   // let id = parseInt(req.query.post_id);
+//   // console.log(id);
+
+//   const sql = "select * from comments where post_id=?"
+//   const parameterList=[req.query.post_id]
+
+//   con.query(sql, parameterList, async function (err, result, fields) {
+//     if (err) {
+//       console.log(err);
+//     } else if(result == undefined) {
+//       res.send("failure")
+//     } else {
+//       console.log(result);
+//       res.send(result);
+//     }
+//   });
+// })
 
   
 // 7. 게시물 제목 검색 기능 코드
@@ -184,6 +187,30 @@ router.get('/getPostAll',(req, res)=>{
   
 })
 
+// 5. 게시글 생성
+router.post('/createPost', upload.single('photographic_path'), (req, res)=>{
+  
+  const sql = "INSERT INTO post VALUES (NULL, ?, ?,?,?,?,?,DEFAULT,NULL,NULL, DEFAULT, DEFAULT,?,DEFAULT)"
+
+  console.log(req.body);
+  console.log(req.file);
+  let defaultphotographicfile='default.png'
+  if(req.file!=undefined){
+    newFileName = req.file.filename
+  }else{
+      newFileName=defaultphotographicfile
+  }
+  if(newFileName==undefined){
+    newFileName = defaultphotographicfile
+  }
+  
+  const parameterList =[req.body.board_id, req.body.nickname, req.body.title, req.body.content, req.ip, newFileName,req.body.availabilty_comments ];
+
+  console.log(req.body);
+  accessDB_post(req, res, sql, parameterList)
+})
+
+
 // POST 방식 DB 접근 함수
 function accessDB_post(req, res, sql, parameterList) {
   
@@ -196,9 +223,21 @@ function accessDB_post(req, res, sql, parameterList) {
       } else {
   
         console.log("쿼리 결과",result, "paht: ",req.path);
-  
-        result = "success"
-        res.send(result)
+        switch(req.path){
+          case '/createPost':
+            console.log('createPost');
+            if(req.file!=undefined){
+              res.send({photographic_pathh: req.file.filename})
+            }else{
+              res.send({photographic_path: 'default.png'})
+            }
+            break;
+          default:
+            res.send(result)
+            break;
+
+        }
+
       }
     });
 }

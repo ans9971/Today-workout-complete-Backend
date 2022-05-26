@@ -155,6 +155,37 @@ function accessDB_put(req, res, sql, parameterList) {
     }); 
 }
 
+
+// GET 방식 DB 접근 함수
+function accessDB_get(req, res, sql, parameterList) {
+  
+    con.query(sql, parameterList, function (err, result, fields) {
+      if (err) {
+        console.log(err);
+        res.send("failure")
+      } else if(result == undefined || result.length == 0) {
+        res.send("failure")
+      } else {
+        console.log("쿼리 결과");
+        console.log(result, req.path);
+        switch (req.path){
+            case '/getPost':
+                console.log('getPost');
+                res.send(result);
+                break;
+            case '/getPostAll':
+                console.log('getPostAll');
+                res.send(result);
+                break;
+            default:
+                // result = "success"
+                res.send(result)
+                break;
+        }
+      }
+    });
+}
+
 function accessDB_patch(req, res, sql, parameterList) {
     con.query(sql, parameterList, async function (err, result, fields) {
         if (err) {
