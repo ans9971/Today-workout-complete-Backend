@@ -152,13 +152,13 @@ router.get('/showComments',(req,res)=>{
 })
 
 //댓글 수정
-// router.post('/updateComment',(req,res) => {
-//   const sql = "update comments set content=? where nickname=? and post_id=? and Comments_id =?"
-//   const parameterList =[req.query.content, req.query.nickname, req.query.post_id, req.query.comments_id]
-//   accessDB_post()
-// })
+router.post('/updateComment',(req,res) => {
+  const sql = "update comments set content=? where nickname=? and post_id=? and Comments_id =?"
+  const parameterList =[req.query.content, req.query.nickname, req.query.post_id, req.query.comments_id]
+  accessDB_post(req, res, sql, parameterList)
+})
 
-// // 게시물 모든 댓글 보여주기
+// 게시물 모든 댓글 보여주기
 // router.get('/showComments',(req,res)=>{
 //   let id = parseInt(req.query.post_id);
 //   console.log(parseInt(id));
@@ -329,6 +329,7 @@ router.post('/createPost', upload.single('photographic_path'), (req, res)=>{
   console.log(req.body);
   accessDB_post(req, res, sql, parameterList)
 })
+
 //커뮤니티 게시글 최신순부터 나열
 router.get('/showPostDesc',(req,res) => {
   const sql = 'SELECT * FROM post ORDER BY creation_datetime desc limit ?,? '
