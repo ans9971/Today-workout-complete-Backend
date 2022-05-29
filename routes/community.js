@@ -142,7 +142,19 @@ router.post('/comments', (req, res) => {
   accessDB_post(req, res, sql, parameterList)
 })
 
+//댓글 수정
+router.patch('/updateComment',(req,res) => {
+  const sql = "update comments set content=? where nickname=? and post_id=? and Comments_id =?"
+  const parameterList =[req.query.content, req.query.nickname, req.query.post_id, req.query.comments_id]
+  accessDB_post(req, res, sql, parameterList)
+})
 
+//댓글 삭제
+router.delete('/deleteComment', (req,res)=>{
+  const sql = 'delete from comments where comments_id=? and post_id= ?'
+  const parameterList=[req.body.nickname, req.body.title]
+  accessDB_post(req, res, sql, parameterList);
+})
 
 
 // 게시물 모든 댓글 보여주기
