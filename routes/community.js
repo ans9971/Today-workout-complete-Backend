@@ -64,6 +64,18 @@ router.post('/createBoard', (req, res) => {
     accessDB_post(req, res, sql, parameterList)
 })
   
+
+// 각 카테고리 게시물만 보기
+router.get('/showAnotherBoard', (req,res) => {
+  const sql= 'select * from post where Board_id=?'
+  const parameterList =[req.body.board_id]
+  console.log(req.body);
+  accessDB_get(req, res, sql, parameterList)
+
+})
+
+
+
 router.get('/getBoard', (req, res) => {
     
     const sql = "SELECT board_id, board_name FROM board WHERE availability=1"
@@ -130,6 +142,22 @@ router.post('/comments', (req, res) => {
   accessDB_post(req, res, sql, parameterList)
 })
 
+
+//댓글 수정
+router.patch('/updateComment',(req,res) => {
+  const sql = "update comments set content=? where nickname=? and post_id=? and Comments_id =?"
+  const parameterList =[req.query.content, req.query.nickname, req.query.post_id, req.query.comments_id]
+  accessDB_post(req, res, sql, parameterList)
+})
+
+//댓글 삭제
+router.delete('/deleteComment', (req,res)=>{
+  const sql = 'delete from comments where comments_id=? and post_id= ?'
+  const parameterList=[req.body.nickname, req.body.title]
+  accessDB_post(req, res, sql, parameterList);
+})
+
+
 // 게시물 모든 댓글 보여주기
 router.get('/showComments',(req,res)=>{
   let id = parseInt(req.query.post_id);
@@ -151,12 +179,7 @@ router.get('/showComments',(req,res)=>{
   console.log(',,m4');
 })
 
-//댓글 수정
-router.post('/updateComment',(req,res) => {
-  const sql = "update comments set content=? where nickname=? and post_id=? and Comments_id =?"
-  const parameterList =[req.query.content, req.query.nickname, req.query.post_id, req.query.comments_id]
-  accessDB_post(req, res, sql, parameterList)
-})
+
 
 // 게시물 모든 댓글 보여주기
 // router.get('/showComments',(req,res)=>{
@@ -330,6 +353,31 @@ router.post('/createPost', upload.single('photographic_path'), (req, res)=>{
   accessDB_post(req, res, sql, parameterList)
 })
 
+//게시글 수정
+router.patch('/updatePost', upload.single('photographic_path'), function(req,res){ 
+  const sql = 'update post set title = ?, content = ?, photographic_path = ?  where nickname = ?';
+  console.log(req.body);
+  console.log(req.file);
+  let defaultphotographicfile='default.png'
+  console.log("bbbbbbb");
+  if(req.file!=undefined){
+    newFileName = req.file.filename
+  }else{
+      newFileName=defaultphotographicfile
+  }
+  if(newFileName==undefined){
+    newFileName = defaultphotographicfile
+  }
+ // 기존 이미지 파일 삭제 코드
+  console.log(PROFILE_IMG_DIR+'/' + req.body.photographic_path);
+  if(req.body.photographic_path != undefined){
+      newFileName=photographic_path;
+      clean(PROFILE_IMG_DIR + '/' + req.body.photographic_path);
+      
+  }
+  accessDB_patch(req, res, sql, [req.body.title, req.body.content, newFileName, req.body.mail])
+});
+
 //커뮤니티 게시글 최신순부터 나열
 router.get('/showPostDesc',(req,res) => {
   const sql = 'SELECT * FROM post ORDER BY creation_datetime desc limit ?,? '
@@ -441,6 +489,40 @@ function accessDB_get(req, res, sql, parameterList) {
         }
       }
     });
+}
+
+
+function accessDB_patch(req, res, sql, parameterList) {
+  con.query(sql, parameterList, async function (err, result, fields) {
+      if (err) {
+          console.log(err);
+      } else if(result == undefined) {
+          res.send("failure")
+      } else {
+          console.log(result);
+          switch(req.path){
+            case '/createPost':
+                if(req.file!=undefined){
+                  res.send({profile_img_path: req.file.filename})
+                }else{
+                  res.send({profile_img_path: 'default.png'})
+                }
+                break;
+            case '/updatePost' :
+                if(req.file!=undefined){
+                  res.send({profile_img_path: req.file.filename})
+                }else{
+                  res.send({profile_img_path: 'default.png'})
+                
+                }
+                break;
+            default:
+              res.send(result);
+              break; 
+          }
+
+      }
+  });
 }
 
 module.exports = router;
