@@ -64,14 +64,7 @@ router.post('/createBoard', (req, res) => {
     accessDB_post(req, res, sql, parameterList)
 })
   
-// 각 카테고리 게시물만 보기
-router.get('/showAnotherBoard', (req,res) => {
-  const sql= 'select * from post where Board_id=?'
-  const parameterList =[req.body.board_id]
-  console.log(req.body);
-  accessDB_get(req, res, sql, parameterList)
 
-})
 
 
 
@@ -151,7 +144,7 @@ router.patch('/updateComment',(req,res) => {
 
 //댓글 삭제
 router.delete('/deleteComment', (req,res)=>{
-  const sql = 'delete from comments where comments_id=? and post_id= ?'
+  const sql = 'delete from comments where comments_id=? and post_id= ? '
   const parameterList=[req.body.nickname, req.body.title]
   accessDB_post(req, res, sql, parameterList);
 })
@@ -179,29 +172,6 @@ router.get('/showComments',(req,res)=>{
 })
 
 
-
-// 게시물 모든 댓글 보여주기
-// router.get('/showComments',(req,res)=>{
-//   let id = parseInt(req.query.post_id);
-//   console.log(parseInt(id));
-//   const sql = "select * from comments where post_id=?"
-//   const parameterList=[req.query.post_id]
-//   // accessDB_get[req,res, sql, parameterList]
-//   con.query(sql, parameterList, async function (err, result, fields) {
-//     if (err) {
-//       console.log(err);
-//     } else if(result == undefined) {
-//       console.log('jjj');
-//       res.send("failure")
-//     } else {
-//       console.log(result);
-//       res.send(result);
-//     }
-//   });
-//   console.log(',,m4');
-// })
-
-
 // 7. 게시물 제목 검색 기능 코드
 router.get('/searchTitle',(req,res)=>{
 
@@ -223,32 +193,6 @@ router.get('/searchTitle',(req,res)=>{
 })
 
 
-// GET 방식 DB 접근 함수
-function accessDB_get(req, res, sql, parameterList) {
-  
-  con.query(sql, parameterList, function (err, result, fields) {
-    if (err) {
-      console.log(err);
-      res.send("failure")
-    } else if(result == undefined) {
-      console.log('-----undefined----');
-      res.send("failure")
-    } else {
-      console.log("쿼리 결과");
-      console.log(result, req.path);
-      switch (req.path){
-        case '/api/getPostAll':
-          console.log('getPost11111');
-          res.send(result);
-          break;
-        default:
-          res.send(result);
-          console.log('aa', result);
-          break;
-      }
-    }
-  });
-}
 
 // // 게시물 모든 댓글 보여주기
 // router.get('/showComments',(req,res)=>{
@@ -315,19 +259,6 @@ router.get('/searchTitle',(req,res)=>{
     }); 
 })
   
-// 전체 게시글 가져오기
-// router.get('/getPostAll',(req, res)=>{
-  
-
-//   const sql = "SELECT * FROM post where board_id =? limit ?,?"
-//   const parameterList =[parseInt(req.query.board_id), parseInt(req.query.limit), parseInt(req.query.limit) + 1000]
-//     console.log(req.query);
-//     console.log(parameterList);
-  
-//     console.log(req.path);
-//     accessDB_get(req, res, sql, parameterList)
-  
-// })
 
 // 5. 게시글 생성
 router.post('/createPost', upload.single('photographic_path'), (req, res)=>{
@@ -354,7 +285,7 @@ router.post('/createPost', upload.single('photographic_path'), (req, res)=>{
 
 //게시글 수정
 router.patch('/updatePost', upload.single('photographic_path'), function(req,res){ 
-  const sql = 'update post set title = ?, content = ?, photographic_path = ?  where nickname = ?';
+  const sql = "update post set title = ?, comment = ?, photographic_path = ?  where post_id = ?";
   console.log(req.body);
   console.log(req.file);
   let defaultphotographicfile='default.png'
@@ -374,7 +305,21 @@ router.patch('/updatePost', upload.single('photographic_path'), function(req,res
       clean(PROFILE_IMG_DIR + '/' + req.body.photographic_path);
       
   }
-  accessDB_patch(req, res, sql, [req.body.title, req.body.content, newFileName, req.body.mail])
+  const parameterList =[req.body.title, req.body.comment, newFileName, req.body.post_id];
+  con.query(sql, parameterList, async function (err, result, fields) {
+    if (err) {
+        console.log(err);
+    } else if(result == undefined) {
+        res.send("failure")
+    } else {
+        console.log(result);
+        if(req.file!=undefined){
+            res.send({profile_img_path: req.file.filename})
+        }else{
+            res.send({profile_img_path: 'default.png'})
+        }
+    }
+  });
 });
 
 //커뮤니티 게시글 최신순부터 나열
@@ -390,6 +335,17 @@ router.get('/showPostAsc',(req,res) => {
   const sql = 'SELECT * FROM post ORDER BY creation_datetime asc limit ?,?'
   const parameterList=[parseInt(req.query.limit),parseInt(req.query.limit)+1000]
   accessDB_get(req, res, sql, parameterList)
+})
+
+
+
+// 각 카테고리 게시물만 보기
+app.get('/api/showAnotherBoard', (req,res) => {
+  const sql= 'select * from post where board_id=?'
+  const parameterList =[req.query.board_id]
+  console.log(req.body);
+  accessDB_get(req, res, sql, parameterList)
+
 })
 
 // 게시글 가져오기
@@ -458,6 +414,34 @@ function accessDB_post(req, res, sql, parameterList) {
 
       }
     });
+}
+
+
+// GET 방식 DB 접근 함수
+function accessDB_get(req, res, sql, parameterList) {
+  
+  con.query(sql, parameterList, function (err, result, fields) {
+    if (err) {
+      console.log(err);
+      res.send("failure")
+    } else if(result == undefined) {
+      console.log('-----undefined----');
+      res.send("failure")
+    } else {
+      console.log("쿼리 결과");
+      console.log(result, req.path);
+      switch (req.path){
+        case '/api/getPostAll':
+          console.log('getPost11111');
+          res.send(result);
+          break;
+        default:
+          res.send(result);
+          console.log('aa', result);
+          break;
+      }
+    }
+  });
 }
 
 // GET 방식 DB 접근 함수
