@@ -96,25 +96,7 @@ router.delete('/deletePost', (req,res)=>{
     accessDB_post(req, res, sql, parameterList);
 })
   
-// 6. 댓글 생성
-// router.post('/comments', (req, res) => {
 
-//   const sql = "INSERT INTO comments (post_id, nickname, parent_comment_id, ip, content) VALUES (?,?,?,?,?)"
-//   let parent_comments_id;
-
-//   // if (req.body.parent_comments_id == 0)
-//   //  parent_comments_id = null
-//   parent_comment_id = null
-//   // ip=null;
-//   // post_id=5;
-//   delete_stats=1;
-//   const parameterList = [req.body.post_id, req.body.nickname, req.body.parent_comment_id,req.ip, req.body.content]
-  
-//   console.log(req.body);
-//   console.log("ip는"+req.ip);
-
-//   accessDB_post(req, res, sql, parameterList)
-// })
 // 6. 댓글 생성
 router.post('/comments', (req, res) => {
 
