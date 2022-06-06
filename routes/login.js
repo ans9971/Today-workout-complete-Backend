@@ -53,6 +53,28 @@ con.query(sql, req.body.mail, function (err, row, fields){
 })
 })
 
+
+// nickname 중복검사
+router.post('/checkNickname',(req, res) =>{
+  const nickname = req.body.nickname;
+  console.log('nickname은', nickname);
+  const sql ='select nickname from memberinfo where nickname=?';
+  con.query(sql, nickname, function (err, row, fields){
+    let checkNickname;
+    checkNickname=false;
+    if(row.length == 0){ //중복되는게 없으면
+      checkNickname = true;// 사용가능
+      res.send({checkNickname: checkNickname});// 다시 checkid 객체를 클아이언트로 보낸다
+    }
+    else{
+      checkNickname=false; // 중복돼서 사용 불가
+      res.send({checkNickname: checkNickname});
+    }
+  })
+})
+
+
+
 // 3. 로그인
 router.post('/login', (req, res) => {
     console.log('login---------');

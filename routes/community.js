@@ -95,7 +95,7 @@ router.delete('/deletePost', (req,res)=>{
     const parameterList=[req.body.nickname, req.body.title]
     accessDB_post(req, res, sql, parameterList);
 })
-  
+
 
 // 6. 댓글 생성
 router.post('/comments', (req, res) => {
@@ -322,7 +322,7 @@ router.get('/showPostAsc',(req,res) => {
 
 
 // 각 카테고리 게시물만 보기
-app.get('/api/showAnotherBoard', (req,res) => {
+router.get('/showAnotherBoard', (req,res) => {
   const sql= 'select * from post where board_id=?'
   const parameterList =[req.query.board_id]
   console.log(req.body);
@@ -365,6 +365,14 @@ router.get('/showCategorySelect',(req, res)=>{
   console.log(req.path);
   accessDB_get(req, res, sql, parameterList)
 
+})
+
+//센서데이터
+router.get('/sensorData',(req,res)=>{
+  const sql = "select emg_data_path from SensorData where nickname =?"
+  const parameterList=[req.params.nickname]
+  accessDB_get(req, res, sql, parameterList)
+  
 })
 
 // POST 방식 DB 접근 함수
