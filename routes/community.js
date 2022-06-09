@@ -26,7 +26,9 @@ let storage  = multer.diskStorage({
     },
 });
   
+
 let upload = multer({ storage: storage });
+
 
 async function clean(file){
     fs.unlink(file, function(err){
@@ -36,10 +38,12 @@ async function clean(file){
     })
 }
 
+
 // GET /user 라우터
 router.get('/', (req, res, next) => {
     res.sendFile(path.join(__dirname, '../views/login.html'));
 });
+
 
 router.get('/board', (req, res) => {
     const sql = "SELECT * FROM board"
@@ -64,10 +68,6 @@ router.post('/createBoard', (req, res) => {
     accessDB_post(req, res, sql, parameterList)
 })
   
-
-
-
-
 
 router.get('/getBoard', (req, res) => {
     
@@ -199,25 +199,6 @@ router.get('/searchTitle',(req,res)=>{
 //     }
 //   });
 //   console.log(',,m4');
-// })
-// 해당 게시물 댓글 가져오기
-// router.get('/showComments',(req,res)=>{
-//   // let id = parseInt(req.query.post_id);
-//   // console.log(id);
-
-//   const sql = "select * from comments where post_id=?"
-//   const parameterList=[req.query.post_id]
-
-//   con.query(sql, parameterList, async function (err, result, fields) {
-//     if (err) {
-//       console.log(err);
-//     } else if(result == undefined) {
-//       res.send("failure")
-//     } else {
-//       console.log(result);
-//       res.send(result);
-//     }
-//   });
 // })
 
   
