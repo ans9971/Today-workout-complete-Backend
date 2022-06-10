@@ -226,7 +226,7 @@ router.get('/searchTitle',(req,res)=>{
 // 5. 게시글 생성
 router.post('/createPost', upload.single('photographic_path'), (req, res)=>{
   
-  const sql = "INSERT INTO post VALUES (NULL, ?, ?,?,?,?,?,DEFAULT,NULL,NULL, DEFAULT, DEFAULT,?,DEFAULT)"
+  const sql = "INSERT INTO post VALUES (NULL, ?, ?, ?, ?, ?, ?, DEFAULT,NULL,NULL, DEFAULT, DEFAULT,?,DEFAULT,DEFAULT)"
 
   console.log(req.body);
   console.log(req.file);
@@ -240,7 +240,7 @@ router.post('/createPost', upload.single('photographic_path'), (req, res)=>{
     newFileName = defaultphotographicfile
   }
   
-  const parameterList =[req.body.board_id, req.body.nickname, req.body.title, req.body.content, req.ip, newFileName,req.body.availabilty_comments ];
+  const parameterList =[req.body.board_id, req.body.nickname, req.body.title, req.body.content, req.ip, newFileName, req.body.availabilty_comments];
 
   console.log(req.body);
   accessDB_post(req, res, sql, parameterList)
