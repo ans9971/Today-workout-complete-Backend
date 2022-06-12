@@ -241,10 +241,11 @@ router.post('/createPost', upload.single('photographic_path'), (req, res)=>{
   }
   
   const parameterList =[req.body.board_id, req.body.nickname, req.body.title, req.body.content, req.ip, newFileName, req.body.availabilty_comments];
-
+  
   console.log(req.body);
   accessDB_post(req, res, sql, parameterList)
 })
+
 
 //게시글 수정
 router.patch('/updatePost', upload.single('photographic_path'), function(req,res){ 
