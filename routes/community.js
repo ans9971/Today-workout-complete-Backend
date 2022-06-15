@@ -39,11 +39,6 @@ async function clean(file){
 }
 
 
-// GET /user 라우터
-router.get('/', (req, res, next) => {
-    res.sendFile(path.join(__dirname, '../views/login.html'));
-});
-
 
 router.get('/board', (req, res) => {
     const sql = "SELECT * FROM board"
@@ -55,6 +50,11 @@ router.get('/board', (req, res) => {
   
     accessDB_get(res, sql, [])
 });
+// GET /user 라우터
+router.get('/', (req, res, next) => {
+  res.sendFile(path.join(__dirname, '../views/login.html'));
+});
+
 
 
 // 4. 게시판 생성 authUtil
@@ -173,33 +173,6 @@ router.get('/searchTitle',(req,res)=>{
     }
   });
 })
-
-
-
-// // 게시물 모든 댓글 보여주기
-// router.get('/showComments',(req,res)=>{
-//   let id = parseInt(req.query.post_id);
-//   console.log('1', req.query);
-//   console.log('2', req.query.post_id);
-//   console.log(parseInt(id));
-//   const sql = "select * from comments where post_id=80"
-//   console.log(',,m2');
-//   const parameterList=[80]
-//   console.log(',,m3');
-//   // accessDB_get[req,res, sql, parameterList]
-//   con.query(sql, parameterList, async function (err, result, fields) {
-//     if (err) {
-//       console.log(err);
-//     } else if(result == undefined) {
-//       console.log('jjj');
-//       res.send("failure")
-//     } else {
-//       console.log(result);
-//       res.send(result);
-//     }
-//   });
-//   console.log(',,m4');
-// })
 
   
 // 7. 게시물 제목 검색 기능 코드
