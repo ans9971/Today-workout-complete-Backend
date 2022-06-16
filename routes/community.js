@@ -103,11 +103,9 @@ router.post('/comments', (req, res) => {
   const sql = "INSERT INTO comments (post_id, nickname, parent_comment_id, ip, content) VALUES (?,?,?,?,?)"
   let parent_comments_id;
 
-  // if (req.body.parent_comments_id == 0)
-  //  parent_comments_id = null
+
   parent_comment_id = null
-  // ip=null;
-  // post_id=5;
+
   delete_stats=1;
   const parameterList = [req.body.post_id, req.body.nickname, req.body.parent_comment_id,req.ip, req.body.content]
 
@@ -223,10 +221,7 @@ router.post('/createPost', upload.single('photographic_path'), (req, res)=>{
 //게시글 수정
 router.patch('/updatePost', upload.single('photographic_path'), function(req,res){ 
   const sql = "update post set title = ?, comment = ?, photographic_path = ?  where post_id = ?";
-  console.log(req.body);
-  console.log(req.file);
   let defaultphotographicfile='default.png'
-  console.log("bbbbbbb");
   if(req.file!=undefined){
     newFileName = req.file.filename
   }else{
@@ -306,7 +301,7 @@ router.get('/getPostDetail',(req, res)=>{
   console.log(req.query);
   console.log(parameterList);
 
-  console.log(req.path);
+  // console.log(req.path);
   accessDB_get(req, res, sql, parameterList)
 
 })
