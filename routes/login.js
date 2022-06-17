@@ -165,4 +165,36 @@ function accessDB_post(req, res, sql, parameterList) {
     });
   }
 
+  function accessDB_patch(req, res, sql, parameterList) {
+    con.query(sql, parameterList, async function (err, result, fields) {
+        if (err) {
+            console.log(err);
+        } else if(result == undefined) {
+            res.send("failure")
+        } else {
+            console.log(result);
+            switch(req.path){
+              case '/createPost':
+                  if(req.file!=undefined){
+                    res.send({profile_img_path: req.file.filename})
+                  }else{
+                    res.send({profile_img_path: 'default.png'})
+                  }
+                  break;
+              case '/updatePost' :
+                  if(req.file!=undefined){
+                    res.send({profile_img_path: req.file.filename})
+                  }else{
+                    res.send({profile_img_path: 'default.png'})
+                  
+                  }
+                  break;
+              default:
+                res.send(result);
+                break; 
+            }
+  
+        }
+    });
+  }
 module.exports = router;
