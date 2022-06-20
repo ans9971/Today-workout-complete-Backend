@@ -142,7 +142,6 @@ function accessDB_post(req, res, sql, parameterList) {
         res.send("failure")
       } else {
   
-        console.log("쿼리 결과");
         console.log(result, req.path);
   
         switch (req.path){
