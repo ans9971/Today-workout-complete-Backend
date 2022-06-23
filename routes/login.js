@@ -156,7 +156,7 @@ function accessDB_post(req, res, sql, parameterList) {
             res.send({token: loginJwtToken.token, result: result})
             break
           default:
-            result = "success"
+            //result = "success"
             res.send(result)
             break
         }
@@ -185,7 +185,6 @@ function accessDB_post(req, res, sql, parameterList) {
                     res.send({profile_img_path: req.file.filename})
                   }else{
                     res.send({profile_img_path: 'default.png'})
-                  
                   }
                   break;
               default:

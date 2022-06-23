@@ -24,9 +24,8 @@ let storage  = multer.diskStorage({
     },
 });
   
+
 let upload = multer({ storage: storage });
-
-
 
 async function clean(file){
     fs.unlink(file, function(err){

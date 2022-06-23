@@ -130,6 +130,26 @@ router.delete('/deleteComment', (req,res)=>{
 })
 
 
+// // 게시물 모든 댓글 보여주기
+// router.get('/showComments',(req,res)=>{
+//   let id = parseInt(req.query.post_id);
+//   console.log(parseInt(id));
+//   const sql = "select * from comments where post_id=?"
+//   const parameterList=[req.query.post_id]
+//   // accessDB_get[req,res, sql, parameterList]
+//   con.query(sql, parameterList, async function (err, result, fields) {
+//     if (err) {
+//       console.log(err);
+//     } else if(result == undefined) {
+//       console.log('jjj');
+//       res.send("failure")
+//     } else {
+//       console.log(result);
+//       res.send(result);
+//     }
+//   });
+//   console.log(',,m4');
+// })
 // 게시물 모든 댓글 보여주기
 router.get('/showComments',(req,res)=>{
   let id = parseInt(req.query.post_id);
@@ -150,7 +170,6 @@ router.get('/showComments',(req,res)=>{
   });
   console.log(',,m4');
 })
-
 
 // 7. 게시물 제목 검색 기능 코드
 router.get('/searchTitle',(req,res)=>{
@@ -305,12 +324,14 @@ router.get('/getPostDetail',(req, res)=>{
   accessDB_get(req, res, sql, parameterList)
 
 })
+
+//카테고리별 게시물 보기
 router.get('/showCategorySelect',(req, res)=>{
 
   const sql = "SELECT * FROM post where board_id =? limit ?,?"
   const parameterList =[parseInt(req.query.board_id), parseInt(req.query.limit), parseInt(req.query.limit) + 1000]
   console.log(req.query);
-  console.log(parameterList);
+  // console.log(parameterList);
 
   console.log(req.path);
   accessDB_get(req, res, sql, parameterList)
