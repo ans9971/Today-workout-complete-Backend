@@ -141,6 +141,7 @@ router.delete('/deleteUserInfo', (req,res)=>{
     accessDB_post(req, res, sql, parameterList);
 })
 
+//수정하는함수
 function accessDB_put(req, res, sql, parameterList) {
     con.query(sql, parameterList, async function (err, result, fields) {
         if (err) {
