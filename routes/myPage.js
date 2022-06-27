@@ -141,6 +141,8 @@ router.delete('/deleteUserInfo', (req,res)=>{
     accessDB_post(req, res, sql, parameterList);
 })
 
+
+
 //수정하는함수
 function accessDB_put(req, res, sql, parameterList) {
     con.query(sql, parameterList, async function (err, result, fields) {
@@ -186,6 +188,7 @@ function accessDB_get(req, res, sql, parameterList) {
     });
 }
 
+//일부분 수정 함수
 function accessDB_patch(req, res, sql, parameterList) {
     con.query(sql, parameterList, async function (err, result, fields) {
         if (err) {
