@@ -1,0 +1,34 @@
+{
+  "exercise": {
+    "nickname": "오운완",
+    "workout_name": "push_up",
+    "measured_muscle": "chest",
+    "starting_time": "2022-05-28T14:45:40:364",
+    "total_workout_time": 315000,
+    "sensing_interval": 500,
+    "number_of_sets": 3,
+    "maximun_value_of_sets": 95,
+    "minimum_value_of_sets": 19,
+    "sets": [{
+        "time": 15000,
+        "break_time": 60000,
+        "maximun_value_of_set": 90,
+        "minimum_value_of_set": 20,
+        "emg_data": [90, 26, 30, 37, 45, 60, 78, 90, 28, 22]
+    },
+    {
+        "time": 15000,
+        "break_time": 60000,
+        "maximun_value_of_set": 90,
+        "minimum_value_of_set": 20,
+        "emg_data": [80, 26, 30, 37, 45, 60, 78, 90, 25, 20]
+    },
+    {
+        "time": 15000,
+        "break_time": 60000,
+        "maximun_value_of_set": 90,
+        "minimum_value_of_set": 20,
+        "emg_data": [19, 26, 30, 37, 45, 60, 78, 90, 24, 21 ]
+    }]
+  }
+}
