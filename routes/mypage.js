@@ -53,13 +53,12 @@ router.post('/api/emgData', (req, res) => {
     })
 });
 
-//센서데이터
+// 센서데이터
 router.get('/api/sensorData',(req,res)=>{
-    console.log('sensorData: ', req.params.nickname);
-    const sql = "select emg_data_path from SensorData where nickname =?"
-    const parameterList=[req.params.nickname]
-    accessDB_get(req, res, sql, parameterList)
-    
+  const sql = "select emg_data_path from SensorData where nickname =?"
+  const parameterList=[req.query.nickname]
+  accessDB_get(req, res, sql, parameterList)
+  console.log(req.query);
 })
 
 async function clean(file){
@@ -174,7 +173,7 @@ router.get('/api/myPagePost',(req,res)=>{
 
 
 
-router.post('/api/myPage/emgData', (req, res) => {
+router.post('/api/emgData', (req, res) => {
   console.log(req.body);
   const emgData = JSON.stringify(req.body)
   const emgDataFile = `${req.body.nickname}_${req.body.starting_time}.json`
@@ -205,33 +204,32 @@ router.delete('/api/deleteUserInfo', (req,res)=>{
     const parameterList=[req.body.mail]
     accessDB_post(req, res, sql, parameterList);
 })
-
 // GET 방식 DB 접근 함수
 function accessDB_get(req, res, sql, parameterList) {
   
-    con.query(sql, parameterList, function (err, result, fields) {
-      if (err) {
-        console.log(err);
-        res.send("failure")
-      } else if(result == undefined || result.length == 0) {
-        res.send("failure")
-      } else {
-        console.log("쿼리 결과");
-        console.log(result, req.path);
-        switch (req.path){
-            case '/api/sensorData':
-                console.log('sensorData');
-                res.send(result);
-                break;
-            default:
-                result = "success"
-                res.send(result)
-                break;
-        }
+  con.query(sql, parameterList, function (err, result, fields) {
+    if (err) {
+      console.log(err);
+      res.send("failure")
+    } else if(result == undefined) {
+      console.log('-----undefined----');
+      res.send("failure")
+    } else {
+      console.log("쿼리 결과");
+      console.log(result, req.path);
+      switch (req.path){
+        case '/api/getPostAll':
+          console.log('getPost11111');
+          res.send(result);
+          break;
+        default:
+          res.send(result);
+          console.log('aa', result);
+          break;
       }
-    });
+    }
+  });
 }
-
 
 // POST 방식 DB 접근 함수
 function accessDB_post(req, res, sql, parameterList) {
@@ -279,35 +277,6 @@ function accessDB_put(req, res, sql, parameterList) {
 }
 
 
-// GET 방식 DB 접근 함수
-function accessDB_get(req, res, sql, parameterList) {
-  
-    con.query(sql, parameterList, function (err, result, fields) {
-      if (err) {
-        console.log(err);
-        res.send("failure")
-      } else if(result == undefined || result.length == 0) {
-        res.send("failure")
-      } else {
-        console.log("쿼리 결과");
-        console.log(result, req.path);
-        switch (req.path){
-            case '/api/getPost':
-                console.log('getPost');
-                res.send(result);
-                break;
-            case '/api/getPostAll':
-                console.log('getPostAll');
-                res.send(result);
-                break;
-            default:
-                // result = "success"
-                res.send(result)
-                break;
-        }
-      }
-    });
-}
 
 function accessDB_patch(req, res, sql, parameterList) {
     con.query(sql, parameterList, async function (err, result, fields) {

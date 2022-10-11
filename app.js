@@ -243,89 +243,89 @@ app.get('/', (req, res) => res.send('Hellosdfsd'))
 
 
 // GET 방식 DB 접근 함수
-function accessDB_get(req, res, sql, parameterList) {
+// function accessDB_get(req, res, sql, parameterList) {
   
-  con.query(sql, parameterList, function (err, result, fields) {
-    if (err) {
-      console.log(err);
-      res.send("failure")
-    } else if(result == undefined) {
-      console.log('-----undefined----');
-      res.send("failure")
-    } else {
-      console.log("쿼리 결과");
-      console.log(result, req.path);
-      switch (req.path){
-        case '/api/getPostAll':
-          console.log('getPost11111');
-          res.send(result);
-          break;
-        default:
-          res.send(result);
-          console.log('aa', result);
-          break;
-      }
-    }
-  });
-}
+//   con.query(sql, parameterList, function (err, result, fields) {
+//     if (err) {
+//       console.log(err);
+//       res.send("failure")
+//     } else if(result == undefined) {
+//       console.log('-----undefined----');
+//       res.send("failure")
+//     } else {
+//       console.log("쿼리 결과");
+//       console.log(result, req.path);
+//       switch (req.path){
+//         case '/api/getPostAll':
+//           console.log('getPost11111');
+//           res.send(result);
+//           break;
+//         default:
+//           res.send(result);
+//           console.log('aa', result);
+//           break;
+//       }
+//     }
+//   });
+// }
 
-// POST 방식 DB 접근 함수
-function accessDB_post(req, res, sql, parameterList) {
+// // // POST 방식 DB 접근 함수
+// // function accessDB_post(req, res, sql, parameterList) {
   
-  con.query(sql, parameterList, async function (err, result, fields) {
-    if (err) {
-      console.log(err);
-    } else if(result == undefined) {
-      res.send("failure")
-    } else {
+// //   con.query(sql, parameterList, async function (err, result, fields) {
+// //     if (err) {
+// //       console.log(err);
+// //     } else if(result == undefined) {
+// //       res.send("failure")
+// //     } else {
 
-      console.log("쿼리 결과");
-      console.log(result, req.path);
+// //       console.log("쿼리 결과");
+// //       console.log(result, req.path);
 
-      switch (req.path){
-        case '/api/join':
-          console.log('join');
-          const joinJwtToken = await jwt.sign(req.body.mail)
-          res.send({token: joinJwtToken.token})
-          break
-        case '/api/login':
-          console.log('login');
-          const loginJwtToken = await jwt.sign(req.body.mail)
-          res.send({token: loginJwtToken.token, result: result})
-          break
-        default:
-          res.send(result)
-          break
-      }
-    }
-  });
-}
+// //       switch (req.path){
+// //         case '/api/join':
+// //           console.log('join');
+// //           const joinJwtToken = await jwt.sign(req.body.mail)
+// //           res.send({token: joinJwtToken.token})
+// //           break
+// //         case '/api/login':
+// //           console.log('login');
+// //           const loginJwtToken = await jwt.sign(req.body.mail)
+// //           res.send({token: loginJwtToken.token, result: result})
+// //           break
+// //         default:
+// //           res.send(result)
+// //           break
+// //       }
+// //     }
+// //   });
+// // }
 
-function accessDB_put(req, res, sql, parameterList) {
-  con.query(sql, parameterList, async function (err, result, fields) {
-    if (err) {
-      console.log(err);
-    } else if(result == undefined) {
-      res.send("failure")
-    } else {
-      console.log(result);
-      res.send("success")
-    }
-  });
-}
+// // function accessDB_put(req, res, sql, parameterList) {
+// //   con.query(sql, parameterList, async function (err, result, fields) {
+// //     if (err) {
+// //       console.log(err);
+// //     } else if(result == undefined) {
+// //       res.send("failure")
+// //     } else {
+// //       console.log(result);
+// //       res.send("success")
+// //     }
+// //   });
+// // }
 
-function accessDB_patch(req, res, sql, parameterList) {
-  con.query(sql, parameterList, async function (err, result, fields) {
-    if (err) {
-      console.log(err);
-    } else if(result == undefined) {
-      res.send("failure")
-    } else {
-      console.log(result);
-      res.send({profile_img_path: req.file.filename})
-    }
-  });
-}
+// // function accessDB_patch(req, res, sql, parameterList) {
+// //   con.query(sql, parameterList, async function (err, result, fields) {
+// //     if (err) {
+// //       console.log(err);
+// //     } else if(result == undefined) {
+// //       res.send("failure")
+// //     } else {
+// //       console.log(result);
+// //       res.send({profile_img_path: req.file.filename})
+// //     }
+// //   });
+// // }
 
 app.get('/api/myPagePost',(req,res)=>{
   const sql = 'select * from post where nickname =? limit ?,?'

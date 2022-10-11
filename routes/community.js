@@ -83,31 +83,6 @@ router.get('/api/getBoard', (req, res) => {
   accessDB_get(res, sql, []);
 })
 
-
-
-// 5. 게시글 생성
-router.post('/api/createPost', upload.single('photographic_path'), (req, res)=>{
-  
-  const sql = "INSERT INTO post VALUES (NULL, ?, ?, ?, ?, ?, ?, DEFAULT,NULL,NULL, DEFAULT, DEFAULT,?,DEFAULT,DEFAULT)"
-
-  console.log(req.body);
-  console.log(req.file);
-  let defaultphotographicfile='default.png'
-  if(req.file!=undefined){
-    newFileName = req.file.filename
-  }else{
-      newFileName=defaultphotographicfile
-  }
-  if(newFileName==undefined){
-    newFileName = defaultphotographicfile
-  }
-  
-  const parameterList =[req.body.board_id, req.body.nickname, req.body.title, req.body.content, req.ip, newFileName, req.body.availabilty_comments];
-
-  console.log(req.body);
-  accessDB_post(req, res, sql, parameterList)
-})
-
 //커뮤니티 게시글 최신순부터 나열
 router.get('/api/showPostDesc',(req,res) => {
   const sql = 'SELECT * FROM post ORDER BY creation_datetime desc limit ?,? '
@@ -210,8 +185,72 @@ router.delete('/api/deletePost', (req, res) => {
 })
 
 // 게시글 수정
+// router.patch('/api/updatePost', upload.single('photographic_path'), function(req,res){ 
+//   const sql = "update post set title = ?, comment = ?, photographic_path = ?  where post_id = ?";
+//   console.log('body 데이터', req.body);
+//   console.log('file 데이터', req.file);
+//   let defaultphotographicfile='default.png'
+//   // console.log("bbbbbbb");
+//   if(req.file!=undefined){
+//     newFileName = req.file.filename
+//   }else{
+//       newFileName=defaultphotographicfile
+//   }
+//   if(newFileName==undefined){
+//     newFileName = defaultphotographicfile
+//   }
+//  // 기존 이미지 파일 삭제 코드
+//   console.log(PROFILE_IMG_DIR+'/' + req.body.photographic_path);
+//   if(req.body.photographic_path != undefined){
+//       newFileName=photographic_path;
+//       clean(PROFILE_IMG_DIR + '/' + req.body.photographic_path);
+      
+//   }
+//   const parameterList =[req.body.title, req.body.comment, newFileName,req.body.post_id];
+//   console.log('수정 데이터', parameterList);
+//   con.query(sql, parameterList, async function (err, result, fields) {
+//     if (err) {
+//         console.log(err);
+//     } else if(result == undefined) {
+//         res.send("failure")
+//     } else {
+//         console.log(result);
+//         if(req.file!=undefined){
+//             res.send({profile_img_path: req.file.filename})
+//         }else{
+//             res.send({profile_img_path: 'default.png'})
+//         }
+//     }
+//   });
+// });
+
+// 5. 게시글 생성
+router.post('/api/createPost', upload.single('photographic_path'), (req, res)=>{
+  
+  const sql = "INSERT INTO post VALUES (NULL, ?, ?, ?, ?, ?, ?, DEFAULT,NULL,NULL, DEFAULT, DEFAULT,?,DEFAULT,DEFAULT,?,?)"
+
+  console.log(req.body);
+  console.log(req.file);
+  let defaultphotographicfile='default.png'
+  if(req.file!=undefined){
+    newFileName = req.file.filename
+  }else{
+      newFileName=defaultphotographicfile
+  }
+  if(newFileName==undefined){
+    newFileName = defaultphotographicfile
+  }
+  
+  const parameterList =[req.body.board_id, req.body.nickname, req.body.title, req.body.content, req.ip, newFileName, req.body.availabilty_comments,,req.body.likes, req.body.chartname];
+
+  console.log(req.body);
+  accessDB_post(req, res, sql, parameterList)
+})
+
+
+// 게시글 수정
 router.patch('/api/updatePost', upload.single('photographic_path'), function(req,res){ 
-  const sql = "update post set title = ?, comment = ?, photographic_path = ?  where post_id = ?";
+  const sql = "update post set title = ?, comment = ?, photographic_path = ?, chartname = ?  where post_id = ?";
   console.log('body 데이터', req.body);
   console.log('file 데이터', req.file);
   let defaultphotographicfile='default.png'
@@ -231,7 +270,7 @@ router.patch('/api/updatePost', upload.single('photographic_path'), function(req
       clean(PROFILE_IMG_DIR + '/' + req.body.photographic_path);
       
   }
-  const parameterList =[req.body.title, req.body.comment, newFileName,req.body.post_id];
+  const parameterList =[req.body.title, req.body.comment, newFileName,req.body.chartname , req.body.post_id];
   console.log('수정 데이터', parameterList);
   con.query(sql, parameterList, async function (err, result, fields) {
     if (err) {
@@ -263,6 +302,13 @@ router.delete('/api/deleteComment', (req,res)=>{
   accessDB_post(req, res, sql, parameterList);
 })
 
+//댓글 개수 카운트
+router.get('/api/countComments',(req,res)=>{
+  const sql='select count(comments_id) from comments where post_id=?'
+  const parameterList=[req.body.post_id]
+  accessDB_get(req, res, sql, parameterList)
+})
+
 // 각 카테고리 게시물만 보기
 router.get('/api/showAnotherBoard', (req,res) => {
   const sql= 'select * from post where board_id=?'
@@ -277,10 +323,50 @@ router.get('/api/myPagePost',(req,res)=>{
   accessDB_get(req, res, sql, parameterList)
 })
 
+
+//게시물 좋아요 누가눌렀는지
+router.get('/api/likePostWho',(req,res)=>{
+  const sql = 'select nickname from likes where post_id=?'
+  //let post_id = 123;
+  const parameterList = req.query.post_id;
+  console.log('list', parameterList);
+  accessDB_get(req,res,sql,parameterList)
+})
+
+//게시물 좋아요 개수
+router.get('/api/likePostCount',(req,res)=>{
+  const sql = 'select count(nickname) from likes where post_id = ?'
+  const parameterList = [req.query.post_id]
+  accessDB_get(req,res,sql,parameterList)
+})
+
+//좋아요 플러스
+router.post('/api/likesPlus',(req,res)=>{
+  const sql = 'insert into Likes values (?, ?)'
+  const parameterList = [req.body.post_id,req.body.nickname]
+  accessDB_post(req,res,sql,parameterList)
+})
+
+//좋아요 마이너스
+router.delete('/api/likesMinus',(req,res)=>{
+  const sql = 'delete from likes where post_id=? and nickname = ?'
+  const parameterList = [req.query.post_id,req.query.nickname]
+  accessDB_post(req,res,sql,parameterList) // 함수가 없눼..
+})
+
+//조회수 플러스
+router.post('/api/viewPlus',(req,res)=>{
+  const sql = 'update post views set views=views+1 where post_id=?'
+  const parameterList=[req.body.post_id]
+  accessDB_post(req, res, sql, parameterList)
+})
+
+
 // POST 방식 DB 접근 함수
 function accessDB_post(req, res, sql, parameterList) {
   
   con.query(sql, parameterList, async function (err, result, fields) {
+    console.log('testest', result);
     if (err) {
       console.log(err);
     } else if(result == undefined || result.length == 0) {
@@ -301,9 +387,7 @@ function accessDB_post(req, res, sql, parameterList) {
         default:
           res.send(result)
           break;
-
       }
-
     }
   });
 }
@@ -332,6 +416,7 @@ function accessDB_get(req, res, sql, parameterList) {
           default:
               // result = "success"
               res.send(result)
+              console.log('whowhowho', result);
               break;
       }
     }
@@ -367,8 +452,7 @@ con.query(sql, parameterList, async function (err, result, fields) {
             res.send(result);
             break; 
         }
-
-    }
-});
+      }
+  });
 }
 module.exports = router;

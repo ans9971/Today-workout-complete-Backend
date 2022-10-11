@@ -39,10 +39,10 @@ router.post('/api/checkNickname',(req, res) =>{
     // console.log(req);
   
     const sql ='select nickname from memberinfo where nickname=?';
-    con.query(sql, req.body.mail, function (err, row, fields){
+    con.query(sql, req.body, function (err, row, fields){ //221009 req.body.mail -> req.body로 수정
       let checkNickname;
       checkNickname=false;
-      console.log(row);
+      console.log("sdsdasd"+row);
       if(row.length == 0){ //중복되는게 없으면
         checkNickname = true;// 사용가능
         res.send({checkNickname: checkNickname});// 다시 checkid 객체를 클아이언트로 보낸다
@@ -60,7 +60,7 @@ console.log(req.body);
 // console.log(req);
 
 const sql ='select mail from memberinfo where mail=?';
-con.query(sql, req.body.mail, function (err, row, fields){
+con.query(sql, req.body, function (err, row, fields){
     let checkid;
     checkid=false;
     console.log(row);
@@ -159,6 +159,7 @@ function accessDB_post(req, res, sql, parameterList) {
             break
           default:
             result = "success"
+            console.log(result);
             res.send(result)
             break
         }
