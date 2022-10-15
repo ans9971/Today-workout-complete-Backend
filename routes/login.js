@@ -88,6 +88,8 @@ router.post('/api/join', (req, res) => {
     // const passwordWithSalt=cryptedpassword+"$"+randomSalt;
     const passwordWithSalt=cryptedpassword;
 
+    
+
     const parameterList = [req.body.mail,passwordWithSalt, req.body.name,  req.body.introduction,
         req.body.phonenumber, req.body.address, req.body.sex, req.body.nickname,  profile_img_path]
 
