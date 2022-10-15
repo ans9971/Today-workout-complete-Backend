@@ -4,11 +4,13 @@ const multer = require('multer');
 const router = express.Router();
 const fs = require('fs')
 const mysql = require('mysql')
+
+const crypto = require('crypto');
 const con = mysql.createConnection({
   host: 'localhost',
   user: 'workout',
   password: '1234',
-  database: 'Today_workout_complete',
+  database: 'today_workout_complete',
 });
 
 const PROFILE_IMG_DIR = '../public/img/userProfile';
@@ -98,7 +100,13 @@ router.post('/api/checkPassword',(req, res) =>{
 //비밀번호 변경
 router.patch('/api/updatePassword',(req, res)=>{
     const sql = 'update memberinfo set password=? where mail=?';
-    const parameterList = [req.body.password, req.body.mail]
+
+    
+    //const randomSalt=crypto.randomBytes(32).toString("hex");
+    const cryptedpassword = crypto.pbkdf2Sync(req.body.password,"salt",65536, 32, "sha512").toString("hex");
+    // const passwordWithSalt=cryptedpassword+"$"+randomSalt;
+    const passwordWithSalt=cryptedpassword;
+    const parameterList = [passwordWithSalt, req.body.mail]
     accessDB_post(req, res, sql, parameterList);
 })
 
@@ -198,12 +206,27 @@ router.post('/api/emgData', (req, res) => {
   })
 });
 
+
+
+router.get('/api/calendarEmgDate',(req,res)=>{
+  const sql = 'select creation_datetime from sensordata where nickname=?'
+
+  const parameterList =[req.query.nickname]
+  // console.log(req.query);
+  accessDB_get(req, res, sql, parameterList);
+})
+
+
+
+
 //유저정보삭제
 router.delete('/api/deleteUserInfo', (req,res)=>{
     const sql = 'delete from memberinfo where mail= ?'
     const parameterList=[req.body.mail]
     accessDB_post(req, res, sql, parameterList);
 })
+
+
 // GET 방식 DB 접근 함수
 function accessDB_get(req, res, sql, parameterList) {
   

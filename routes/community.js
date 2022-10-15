@@ -8,12 +8,12 @@ const con = mysql.createConnection({
   host: 'localhost',
   user: 'workout',
   password: '1234',
-  database: 'Today_workout_complete',
+  database: 'today_workout_complete',
 });
 
 
-const PROFILE_IMG_DIR = 'public/img/userProfile';
-const POST_IMG_DIR = 'public/img/postPhoto';
+const PROFILE_IMG_DIR = '../public/img/userProfile';
+const POST_IMG_DIR = '../public/img/postPhoto';
 
 let storage  = multer.diskStorage({
     destination(req, file, cb) {
@@ -103,10 +103,10 @@ router.get('/api/getPostAll',(req, res)=>{
 
   const sql = "SELECT * FROM post where board_id =? limit ?,?"
   const parameterList =[parseInt(req.query.board_id), parseInt(req.query.limit), parseInt(req.query.limit) + 1000]
-  console.log(req.query);
-  console.log(parameterList);
+  // console.log(req.query);
+  // console.log(parameterList);
 
-  console.log(req.path);
+  // console.log(req.path);
   accessDB_get(req, res, sql, parameterList)
 
 })
@@ -402,8 +402,8 @@ function accessDB_get(req, res, sql, parameterList) {
     } else if(result == undefined || result.length == 0) {
       res.send("failure")
     } else {
-      console.log("쿼리 결과");
-      console.log(result, req.path);
+      // console.log("쿼리 결과");
+      // console.log(result, req.path);
       switch (req.path){
           case '/api/getPost':
               console.log('getPost');
@@ -416,7 +416,7 @@ function accessDB_get(req, res, sql, parameterList) {
           default:
               // result = "success"
               res.send(result)
-              console.log('whowhowho', result);
+              // console.log('whowhowho', result);
               break;
       }
     }

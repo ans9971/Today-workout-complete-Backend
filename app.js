@@ -5,7 +5,7 @@ const mysql = require('mysql')
 const path = require('path')
 // const bodyParser = require('body-parser')
 const loginRouter = require('./routes/login')
-const myPageRouter = require('./routes/myPage')
+const myPageRouter = require('./routes/mypage')
 const communityRouter = require('./routes/community')
 const jwt = require('./modules/jwt')
 const authUtil = require('./middlewares/auth').checkToken
@@ -15,7 +15,8 @@ const IMG_DIR = 'public/img';
 const PROFILE_IMG_DIR = 'public/img/userProfile';
 const POST_IMG_DIR = 'public/img/postPhoto';
 const EMG_DATA_DIR = 'public/emgData';
-
+// import {pbkdf2} from "crypto";
+// import {randomBytes} from "crypto";
 let storage  = multer.diskStorage({ // 2
   destination(req, file, cb) {
     if(req.body.title==undefined){
@@ -52,7 +53,7 @@ const con = mysql.createConnection({
   host: 'localhost',
   user: 'workout',
   password: '1234',
-  database: 'Today_workout_complete',
+  database: 'today_workout_complete',
 });
 
 app.use(express.static('public'))
