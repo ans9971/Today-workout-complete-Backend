@@ -7,6 +7,7 @@ const path = require('path')
 const loginRouter = require('./routes/login')
 const myPageRouter = require('./routes/mypage')
 const communityRouter = require('./routes/community')
+const emailauthRouter = require('./routes/emailauth')
 const jwt = require('./modules/jwt')
 const authUtil = require('./middlewares/auth').checkToken
 const multer = require('multer');
@@ -62,7 +63,7 @@ app.use(express.json());
 // application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }))
 // app.use('/login', loginRouter)
-
+app.use(emailauthRouter)
 
 
 // 라우터 설정

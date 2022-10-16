@@ -13,7 +13,7 @@ const con = mysql.createConnection({
   database: 'today_workout_complete',
 });
 
-const PROFILE_IMG_DIR = '../public/img/userProfile';
+const PROFILE_IMG_DIR = '/root/TWC-BACKEND-BACKUP/public/img/userProfile';
 const EMG_DATA_DIR = 'public/emgData';
 
 let storage  = multer.diskStorage({
@@ -57,7 +57,7 @@ router.post('/api/emgData', (req, res) => {
 
 // 센서데이터
 router.get('/api/sensorData',(req,res)=>{
-  const sql = "select emg_data_path from SensorData where nickname =?"
+  const sql = "select emg_data_path from sensordata where nickname =?"
   const parameterList=[req.query.nickname]
   accessDB_get(req, res, sql, parameterList)
   console.log(req.query);
@@ -103,9 +103,11 @@ router.patch('/api/updatePassword',(req, res)=>{
 
     
     //const randomSalt=crypto.randomBytes(32).toString("hex");
+    const cryptedmail=crypto.pbkdf2Sync(req.body.mail,"salt",65536, 32, "sha512").toString("hex");
     const cryptedpassword = crypto.pbkdf2Sync(req.body.password,"salt",65536, 32, "sha512").toString("hex");
+    const passwordWithSalt=cryptedpassword+"$"+cryptedmail;
     // const passwordWithSalt=cryptedpassword+"$"+randomSalt;
-    const passwordWithSalt=cryptedpassword;
+    
     const parameterList = [passwordWithSalt, req.body.mail]
     accessDB_post(req, res, sql, parameterList);
 })

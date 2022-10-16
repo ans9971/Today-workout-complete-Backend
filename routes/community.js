@@ -10,10 +10,10 @@ const con = mysql.createConnection({
   password: '1234',
   database: 'today_workout_complete',
 });
+const mailAuthDefault = " ";
 
-
-const PROFILE_IMG_DIR = '../public/img/userProfile';
-const POST_IMG_DIR = '../public/img/postPhoto';
+const PROFILE_IMG_DIR = '/root/TWC-BACKEND-BACKUP/public/img/userProfile';
+const POST_IMG_DIR = '/root/TWC-BACKEND-BACKUP/public/img/postPhoto';
 
 let storage  = multer.diskStorage({
     destination(req, file, cb) {
@@ -342,7 +342,7 @@ router.get('/api/likePostCount',(req,res)=>{
 
 //좋아요 플러스
 router.post('/api/likesPlus',(req,res)=>{
-  const sql = 'insert into Likes values (?, ?)'
+  const sql = 'insert into likes values (?, ?)'
   const parameterList = [req.body.post_id,req.body.nickname]
   accessDB_post(req,res,sql,parameterList)
 })
@@ -360,6 +360,59 @@ router.post('/api/viewPlus',(req,res)=>{
   const parameterList=[req.body.post_id]
   accessDB_post(req, res, sql, parameterList)
 })
+
+
+
+const nodemailer = require('nodemailer');
+const ejs = require('ejs');
+var appDir = path.dirname(require.main.filename);
+
+
+router.post('/api/mailauth', async(req, res) => {
+    let authNum = Math.random().toString().substr(2,6);
+    mailAuthDefault = authNum;
+    let emailTemplete;
+    ejs.renderFile(appDir+'/template/authMail.ejs', {authCode : authNum}, function (err, data) {
+      if(err){console.log(err)}
+      emailTemplete = data;
+    });
+
+    let transporter = nodemailer.createTransport({
+        service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false,
+        auth: {
+            user: "todayworkoutcomplete@gmail.com",
+            pass: "dblab!23",
+        },
+    });
+
+    let mailOptions = await transporter.sendMail({
+        from: `오운완`,
+        to: req.body.mail,
+        subject: '[오늘운동완료] 비밀번호재설정을 위한 인증번호',
+        html: emailTemplete,
+    });
+
+
+    transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+            console.log(error);
+        }
+        console.log("Finish sending email : " + info.response);
+        res.send(authNum);
+        transporter.close()
+    });
+});
+
+router.get('/api/authRes',(req,res)=>{
+  res.send(mailAuthDefault);
+  console.log(mailAuthDefault);
+})
+
+
+
 
 
 // POST 방식 DB 접근 함수
@@ -455,4 +508,6 @@ con.query(sql, parameterList, async function (err, result, fields) {
       }
   });
 }
+
+
 module.exports = router;

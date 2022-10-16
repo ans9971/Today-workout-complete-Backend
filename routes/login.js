@@ -29,7 +29,7 @@ const con = mysql.createConnection({
 router.get('/', (req, res, next) => {
     res.sendFile(path.join(__dirname, '../views/login.html'));
 });
-
+// const randomSalt=crypto.randomBytes(32).toString("hex");
 
 //nickname 중복검사
 router.post('/api/checkNickname',(req, res) =>{
@@ -80,16 +80,17 @@ con.query(sql, req.body.mail, function (err, row, fields){
 router.post('/api/join', (req, res) => {
     // 프로필 이미지 저장 및 경로 빼오기
     const profile_img_path = 'default'
-    const sql = "INSERT INTO memberinfo VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, '1', default, default, null, null, 1, 1)"
+    const sql = "INSERT INTO memberinfo VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, '1', default, default, null, null, 1, 1,?)"
 
-    //const randomSalt=crypto.randomBytes(32).toString("hex");
+    const randomSalt=crypto.randomBytes(32).toString("hex");
     const cryptedmail=crypto.pbkdf2Sync(req.body.mail,"salt",65536, 32, "sha512").toString("hex");
     const cryptedpassword = crypto.pbkdf2Sync(req.body.password,"salt",65536, 32, "sha512").toString("hex");
-    // const passwordWithSalt=cryptedpassword+"$"+randomSalt;
-    const passwordWithSalt=cryptedpassword;
+    const passwordWithSalt=cryptedpassword+"$"+cryptedmail;
+    console.log(randomSalt);
+    // const passwordWithSalt=cryptedpassword;
 
     const parameterList = [req.body.mail,passwordWithSalt, req.body.name,  req.body.introduction,
-        req.body.phonenumber, req.body.address, req.body.sex, req.body.nickname,  profile_img_path]
+        req.body.phonenumber, req.body.address, req.body.sex, req.body.nickname,  profile_img_path, randomSalt]
 
     console.log(req.body);
 
@@ -101,19 +102,25 @@ router.post('/api/join', (req, res) => {
 // 3. 로그인
 router.post('/api/login', (req, res) => {
     console.log('login---------');
-
     const sql = "SELECT * FROM memberinfo WHERE mail = ? AND password = ?"
-
-    //const randomSalt=crypto.randomBytes(32).toString("hex");
+    const cryptedmail=crypto.pbkdf2Sync(req.body.mail,"salt",65536, 32, "sha512").toString("hex");
     const cryptedpassword = crypto.pbkdf2Sync(req.body.password,"salt",65536, 32, "sha512").toString("hex");
-    // const passwordWithSalt=cryptedpassword+"$"+randomSalt;
-    const passwordWithSalt=cryptedpassword;
-    console.log(passwordWithSalt);
+    const passwordWithSalt=cryptedpassword+"$"+cryptedmail;
+    // User.findOne({
+    //   where:{
+    //     userSalt:{
+    //       userSalt:req.body.userSalt
+    //     }
+    //   }
+    // })
+
     const parameterList = [req.body.mail, passwordWithSalt]
+    console.log(cryptedmail);
+    console.log(passwordWithSalt);
     console.log(req.body);
-    console.log('login---------2');
     accessDB_post(req, res, sql, parameterList)
-    console.log('login---------3');
+
+
 })
 
 //아이디 찾기
