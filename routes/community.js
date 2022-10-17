@@ -86,7 +86,11 @@ router.get('/api/getBoard', (req, res) => {
 //커뮤니티 게시글 최신순부터 나열
 router.get('/api/showPostDesc',(req,res) => {
   const sql = 'SELECT * FROM post ORDER BY creation_datetime desc limit ?,? '
-  const parameterList=[parseInt(req.query.limit), parseInt(req.query.limit)+9]
+  const parameterList=[parseInt(req.query.limit), 9]
+
+  console.log(req.query.limit);
+
+
 
   accessDB_get(req, res, sql, parameterList)
 })
@@ -94,7 +98,11 @@ router.get('/api/showPostDesc',(req,res) => {
 //커뮤니티 게시글 오래된순부터 나열
 router.get('/api/showPostAsc',(req,res) => {
   const sql = 'SELECT * FROM post ORDER BY creation_datetime asc limit ?,?'
-  const parameterList=[parseInt(req.query.limit),parseInt(req.query.limit)+9]
+  const parameterList=[parseInt(req.query.limit),9]
+  
+
+
+
   accessDB_get(req, res, sql, parameterList)
 })
 
@@ -102,7 +110,7 @@ router.get('/api/showPostAsc',(req,res) => {
 router.get('/api/getPostAll',(req, res)=>{
 
   const sql = "SELECT * FROM post where board_id =? limit ?,?"
-  const parameterList =[parseInt(req.query.board_id), parseInt(req.query.limit), parseInt(req.query.limit) + 1000]
+  const parameterList =[parseInt(req.query.board_id), parseInt(req.query.limit), 9]
   // console.log(req.query);
   // console.log(parameterList);
 

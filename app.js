@@ -409,6 +409,7 @@ app.listen(port, () => {
   else console.log("--------------");
 
   if (!fs.existsSync(EMG_DATA_DIR)) fs.mkdirSync(EMG_DATA_DIR);
+  else console.log("--------------");
 
   
   console.log('Example prot: ${port}')
