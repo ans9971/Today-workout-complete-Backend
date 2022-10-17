@@ -170,6 +170,13 @@ router.get('/api/myPagePost',(req,res)=>{
 })
 
 
+//닉네임 받으면 개인정보 전부 주는 코드
+router.get('/api/userInfo',(req,res)=>{
+  const sql = 'select * from memberInfo where nickname = ?'
+  const parameterList =[req.query.nickname]
+  accessDB_get(req, res,sql,parameterList)
+})
+
 
 
 
