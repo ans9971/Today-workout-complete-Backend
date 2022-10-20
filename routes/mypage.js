@@ -4,6 +4,7 @@ const multer = require('multer');
 const router = express.Router();
 const fs = require('fs')
 const mysql = require('mysql')
+const readFile = require('filereader')
 
 const crypto = require('crypto');
 const con = mysql.createConnection({
@@ -57,9 +58,11 @@ router.post('/api/emgData', (req, res) => {
 
 // 센서데이터
 router.get('/api/sensorData',(req,res)=>{
+  
   const sql = "select emg_data_path from sensordata where nickname =?"
   const parameterList=[req.query.nickname]
   accessDB_get(req, res, sql, parameterList)
+  
   console.log(req.query);
 })
 
@@ -97,6 +100,100 @@ router.post('/api/checkPassword',(req, res) =>{
     }
   })
 })
+
+router.get('/api/sendEmgData',(req,res)=>{
+  sql='select emg_data_path from sensordata where nickname = ?'
+  parameterList=[req.query.nickname]
+  // const data = fs.readFileSync("/root/TWC-BACKEND-BACKUP/public/emgData"+"/"+Object.values(req.query), {encoding:'utf8', flag:'r'});
+  // JSON.stringify(data)
+  
+  con.query(sql, parameterList, function (err, result, fields){
+    
+    
+    // console.log(row);
+    if(err){
+      console.log(err);
+      res.send("faile")
+    } else{
+      console.log(req.query);
+      // console.log(req.query.Month);
+      // console.log(req.query.Day);
+
+      let emgList=[];
+      console.log('여기;?', Object.values(result[3]));
+      for(let i = 0;i<result.length;i++){
+
+        const emgPath=Object.values(result[i]);
+        //console.log('??', emgPath[0].split('_'));
+        const emgDate=emgPath[0].split('_');
+        const emgYear=emgDate[1].substring(0,4)
+        const emgMonth=emgDate[1].substring(4,6)
+        const emgDay=emgDate[1].substring(6,8)
+        if(emgYear == req.query.Year && emgMonth == req.query.Month && emgDay == req.query.Day){
+          console.log(emgYear+emgMonth+emgDay);
+          let data = JSON.parse(fs.readFileSync("/root/TWC-BACKEND-BACKUP/public/emgData"+"/"+Object.values(result[i]), {encoding:'utf8', flag:'r'}));
+          // console.log(data);
+          for(let i = 0; i < data.sets.length; i++) data.sets[i].emg_data = data.sets[i].emg_data.substring(1, data.sets[i].emg_data.length-1).split()
+          console.log(data);
+          emgList.push(data);
+        }
+      }
+      // console.log([...emgList]);
+      console.log(JSON.stringify(emgList));
+      res.send(emgList);
+    }
+  })
+  
+  // const data2 = JSON.parse(data)
+  // const data2=JSON.stringify(data);
+  // console.log(data+"\n");
+  // res.send(data)
+  // console.log(data3);
+  // var buf = Buffer.from(JSON.stringify(data));
+  // var temp = JSON.parse(buf.toString());
+  // // const buffer = Buffer.concat(data);
+  // // const obj = JSON.parse(buffer.toString());
+  // console.log(Object.values(req.query));
+  // console.log(temp);
+  // if(err){
+  //   console.log(err);
+
+  // }else{
+
+  // }
+
+  
+
+  // con.query(sql, parameterList, function (err, result, fields) {
+  //   if (err) {
+  //     console.log(err);
+  //   } else if(result == undefined) {
+  //     console.log('-----undefined----');
+  //     res.send("failure")
+  //   } else if(result=="a"){
+  //     //result
+  //     const jsonfile = fs.readFile("../public/emgData"+result);
+  //     console.log('aa', result);
+      
+  //     // GET /emgData/얍_20221018_162803_333.json
+  //   } else {
+  //     console.log("쿼리 결과");
+  //     console.log(result, req.path);
+  //     switch (req.path){
+  //       case '/api/getPostAll':
+  //         console.log('getPost11111');
+  //         res.send(result);
+  //         break;
+  //       default:
+  //         res.send(result);
+  //         console.log('aa', result);
+  //         break;
+  //     }
+  //   }
+  // });
+})
+
+
 //비밀번호 변경
 router.patch('/api/updatePassword',(req, res)=>{
     const sql = 'update memberinfo set password=? where mail=?';
@@ -239,6 +336,12 @@ function accessDB_get(req, res, sql, parameterList) {
     } else if(result == undefined) {
       console.log('-----undefined----');
       res.send("failure")
+    } else if(result=="a"){
+      //result
+      const jsonfile = fs.readFile("../public/emgData"+result);
+      console.log('aa', result);
+      
+      // GET /emgData/얍_20221018_162803_333.json
     } else {
       console.log("쿼리 결과");
       console.log(result, req.path);

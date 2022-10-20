@@ -100,9 +100,6 @@ router.get('/api/showPostAsc',(req,res) => {
   const sql = 'SELECT * FROM post ORDER BY creation_datetime asc limit ?,?'
   const parameterList=[parseInt(req.query.limit),9]
   
-
-
-
   accessDB_get(req, res, sql, parameterList)
 })
 
@@ -110,7 +107,7 @@ router.get('/api/showPostAsc',(req,res) => {
 router.get('/api/getPostAll',(req, res)=>{
 
   const sql = "SELECT * FROM post where board_id =? limit ?,?"
-  const parameterList =[parseInt(req.query.board_id), parseInt(req.query.limit), 9]
+  const parameterList =[parseInt(req.query.board_id), parseInt(req.query.limit), 1000]
   // console.log(req.query);
   // console.log(parameterList);
 
@@ -310,10 +307,17 @@ router.delete('/api/deleteComment', (req,res)=>{
   accessDB_post(req, res, sql, parameterList);
 })
 
+//게시물 좋아요 개수
+router.get('/api/likePostCount',(req,res)=>{
+  const sql = 'select count(nickname) from likes where post_id = ?'
+  const parameterList = [req.query.post_id]
+  accessDB_get(req,res,sql,parameterList)
+})
+
 //댓글 개수 카운트
 router.get('/api/countComments',(req,res)=>{
-  const sql='select count(comments_id) from comments where post_id=?'
-  const parameterList=[req.body.post_id]
+  const sql = 'select count(comments_id) AS comments_count from comments where post_id=?'
+  const parameterList=[req.query.post_id]
   accessDB_get(req, res, sql, parameterList)
 })
 
@@ -331,7 +335,6 @@ router.get('/api/myPagePost',(req,res)=>{
   accessDB_get(req, res, sql, parameterList)
 })
 
-
 //게시물 좋아요 누가눌렀는지
 router.get('/api/likePostWho',(req,res)=>{
   const sql = 'select nickname from likes where post_id=?'
@@ -341,12 +344,7 @@ router.get('/api/likePostWho',(req,res)=>{
   accessDB_get(req,res,sql,parameterList)
 })
 
-//게시물 좋아요 개수
-router.get('/api/likePostCount',(req,res)=>{
-  const sql = 'select count(nickname) from likes where post_id = ?'
-  const parameterList = [req.query.post_id]
-  accessDB_get(req,res,sql,parameterList)
-})
+
 
 //좋아요 플러스
 router.post('/api/likesPlus',(req,res)=>{
@@ -467,17 +465,29 @@ function accessDB_get(req, res, sql, parameterList) {
       // console.log(result, req.path);
       switch (req.path){
           case '/api/getPost':
-              console.log('getPost');
-              res.send(result);
-              break;
+            console.log('getPost');
+            res.send(result);
+            break;
           case '/api/getPostAll':
-              console.log('getPostAll');
-              res.send(result);
-              break;
+            console.log('getPostAll');
+            res.send(result);
+            break;
+          case '/api/myPagePost':
+            console.log('myPagePost');
+            res.send(result);
+            break;
+
+          // case '/api/countComments':
+          //   let commentres = [];
+          //   for (let i = 0; i < result.length; i++) {
+          //     commentres.push(result[i]);
+          //   }
+          //   res.send([...commentres]);
+          //   break;
           default:
               // result = "success"
               res.send(result)
-              // console.log('whowhowho', result);
+              console.log('whowhowho', result);
               break;
       }
     }
