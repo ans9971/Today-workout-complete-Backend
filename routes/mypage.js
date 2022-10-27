@@ -82,8 +82,6 @@ router.get('/api/sendEmgData',(req,res)=>{
   // JSON.stringify(data)
   
   con.query(sql, parameterList, function (err, result, fields){
-    
-    
     // console.log(row);
     if(err){
       console.log(err);
@@ -115,10 +113,7 @@ router.get('/api/sendEmgData',(req,res)=>{
             emgList.push(data);
           }
         }
-
       }
-      
-      // console.log([...emgList]);
       console.log(JSON.stringify(emgList));
       res.send(emgList);
     }
@@ -255,30 +250,30 @@ router.get('/api/myPagePost',(req,res)=>{
 
 
 
-router.post('/api/emgData', (req, res) => {
-  console.log(req.body);
-  const emgData = JSON.stringify(req.body)
-  const emgDataFile = `${req.body.nickname}_${req.body.starting_time}.json`
+// router.post('/api/emgData', (req, res) => {
+//   console.log(req.body);
+//   const emgData = JSON.stringify(req.body)
+//   const emgDataFile = `${req.body.nickname}_${req.body.starting_time}.json`
 
-  fs.writeFileSync(`${EMG_DATA_DIR}/${emgDataFile}`, emgData)
+//   fs.writeFileSync(`${EMG_DATA_DIR}/${emgDataFile}`, emgData)
   
-  // DB 저장
-  const sql = "INSERT INTO sensordata VALUES (?,DEFAULT, ?)"
-  const parameterList = [req.body.nickname, emgDataFile]
+//   // DB 저장
+//   const sql = "INSERT INTO sensordata VALUES (?,DEFAULT, ?)"
+//   const parameterList = [req.body.nickname, emgDataFile]
 
-  con.query(sql, parameterList, function (err, row, fields){
-    let checkNickname;
-    checkNickname=false;
-    console.log(row);
-    if(err){
-      console.log(err);
-      res.send("faile")
-    } else{
-      console.log(row);
-      res.send("success")
-    }
-  })
-});
+//   con.query(sql, parameterList, function (err, row, fields){
+//     let checkNickname;
+//     checkNickname=false;
+//     console.log(row);
+//     if(err){
+//       console.log(err);
+//       res.send("faile")
+//     } else{
+//       console.log(row);
+//       res.send("success")
+//     }
+//   })
+// });
 
 
 

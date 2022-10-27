@@ -28,6 +28,7 @@ let storage  = multer.diskStorage({
   
 let upload = multer({ storage: storage });
 
+
 async function clean(file){
     fs.unlink(file, function(err){
         if(err) {
@@ -256,7 +257,6 @@ router.patch('/api/updatePost', upload.single('photographic_path'), function(req
   console.log('body 데이터', req.body);
   console.log('file 데이터', req.file);
   let defaultphotographicfile='default.png'
-  // console.log("bbbbbbb");
   if(req.file!=undefined){
     newFileName = req.file.filename
   }else{
@@ -268,8 +268,10 @@ router.patch('/api/updatePost', upload.single('photographic_path'), function(req
  // 기존 이미지 파일 삭제 코드
   console.log(PROFILE_IMG_DIR+'/' + req.body.photographic_path);
   if(req.body.photographic_path != undefined){
-      newFileName=photographic_path;
+      newFileName=req.body.photographic_path;
       clean(PROFILE_IMG_DIR + '/' + req.body.photographic_path);
+  }else{
+    req.body.photographic_path=defaultphotographicfile;
   }
   const parameterList =[req.body.title, req.body.comment, newFileName, req.body.chartname , req.body.post_id];
   console.log('수정 데이터', parameterList);
@@ -281,9 +283,9 @@ router.patch('/api/updatePost', upload.single('photographic_path'), function(req
     } else {
         console.log(result);
         if(req.file!=undefined){
-            res.send({profile_img_path: req.file.filename})
+            res.send({photographic_path: req.file.filename})
         }else{
-            res.send({profile_img_path: 'default.png'})
+            res.send({photographic_path: 'default.png'})
         }
     }
   });
@@ -468,14 +470,6 @@ function accessDB_get(req, res, sql, parameterList) {
             console.log('myPagePost');
             res.send(result);
             break;
-
-          // case '/api/countComments':
-          //   let commentres = [];
-          //   for (let i = 0; i < result.length; i++) {
-          //     commentres.push(result[i]);
-          //   }
-          //   res.send([...commentres]);
-          //   break;
           default:
               // result = "success"
               res.send(result)
