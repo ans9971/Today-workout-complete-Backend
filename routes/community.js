@@ -2,7 +2,7 @@ const express = require('express');
 const path = require('path');
 const multer = require('multer');
 const router = express.Router();
-
+const fs = require('fs');
 const mysql = require('mysql')
 const con = mysql.createConnection({
   host: 'localhost',
@@ -187,46 +187,6 @@ router.delete('/api/deletePost', (req, res) => {
   accessDB_post(req, res, sql, parameterList);
 })
 
-// 게시글 수정
-// router.patch('/api/updatePost', upload.single('photographic_path'), function(req,res){ 
-//   const sql = "update post set title = ?, comment = ?, photographic_path = ?  where post_id = ?";
-//   console.log('body 데이터', req.body);
-//   console.log('file 데이터', req.file);
-//   let defaultphotographicfile='default.png'
-//   // console.log("bbbbbbb");
-//   if(req.file!=undefined){
-//     newFileName = req.file.filename
-//   }else{
-//       newFileName=defaultphotographicfile
-//   }
-//   if(newFileName==undefined){
-//     newFileName = defaultphotographicfile
-//   }
-//  // 기존 이미지 파일 삭제 코드
-//   console.log(PROFILE_IMG_DIR+'/' + req.body.photographic_path);
-//   if(req.body.photographic_path != undefined){
-//       newFileName=photographic_path;
-//       clean(PROFILE_IMG_DIR + '/' + req.body.photographic_path);
-      
-//   }
-//   const parameterList =[req.body.title, req.body.comment, newFileName,req.body.post_id];
-//   console.log('수정 데이터', parameterList);
-//   con.query(sql, parameterList, async function (err, result, fields) {
-//     if (err) {
-//         console.log(err);
-//     } else if(result == undefined) {
-//         res.send("failure")
-//     } else {
-//         console.log(result);
-//         if(req.file!=undefined){
-//             res.send({profile_img_path: req.file.filename})
-//         }else{
-//             res.send({profile_img_path: 'default.png'})
-//         }
-//     }
-//   });
-// });
-
 // 5. 게시글 생성
 router.post('/api/createPost', upload.single('photographic_path'), (req, res)=>{
   
@@ -336,7 +296,6 @@ router.get('/api/myPagePost',(req,res) => {
 //게시물 좋아요 누가눌렀는지
 router.get('/api/likePostWho',(req,res)=>{
   const sql = 'select nickname from likes where post_id=?'
-  //let post_id = 123;
   const parameterList = req.query.post_id;
   console.log('list', parameterList);
   accessDB_get(req,res,sql,parameterList)
@@ -455,8 +414,8 @@ function accessDB_get(req, res, sql, parameterList) {
     } else if(result == undefined || result.length == 0) {
       res.send("failure")
     } else {
-      // console.log("쿼리 결과");
-      // console.log(result, req.path);
+      console.log("쿼리 결과");
+      console.log(result, req.path);
       switch (req.path){
           case '/api/getPost':
             console.log('getPost');
@@ -471,7 +430,6 @@ function accessDB_get(req, res, sql, parameterList) {
             res.send(result);
             break;
           default:
-              // result = "success"
               res.send(result)
               console.log('whowhowho', result);
               break;

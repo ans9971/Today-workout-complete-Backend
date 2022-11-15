@@ -90,8 +90,6 @@ router.get('/api/sendEmgData',(req,res)=>{
       console.log(req.query);
 
       let emgList=[];
-      console.log('여기;?', Object.values(result[3]));
-      
       if(req.query.Year == undefined){          // 다른 사람 운동 데이터 1개 가져오기
         let data = JSON.parse(fs.readFileSync("/root/TWC-BACKEND-BACKUP/public/emgData"+"/"+Object.values(result[result.length-1]), {encoding:'utf8', flag:'r'}));
         for(let i = 0; i < data.sets.length; i++) data.sets[i].emg_data = data.sets[i].emg_data.substring(1, data.sets[i].emg_data.length-1).split(",").map(Number);
@@ -99,13 +97,14 @@ router.get('/api/sendEmgData',(req,res)=>{
         emgList.push(data);
       } else {                                  // 캘린더 나의 운동 데이터 가져오기
         for(let i = 0;i<result.length;i++){
-          const emgPath=Object.values(result[i]);
-          //console.log('??', emgPath[0].split('_'));
-          const emgDate=emgPath[0].split('_');
-          const emgYear=emgDate[1].substring(0,4)
-          const emgMonth=emgDate[1].substring(4,6)
-          const emgDay=emgDate[1].substring(6,8)
-          if(emgYear == req.query.Year && emgMonth == req.query.Month && emgDay == req.query.Day){
+          let emgPath = Object.values(result[i]);
+          console.log('emgPath: ' + emgPath);
+          let emgDate = emgPath[0].split('\$');
+          console.log('emgDate: ' + emgDate[2]);
+          let emgYear = emgDate[2].substring(0,4);
+          let emgMonth = emgDate[2].substring(4,6);
+          let emgDay = emgDate[2].substring(6,8);
+          if(emgYear.includes(req.query.Year) && emgMonth.includes(req.query.Month) && emgDay.includes(req.query.Day)){
             console.log(emgYear+emgMonth+emgDay);
             let data = JSON.parse(fs.readFileSync("/root/TWC-BACKEND-BACKUP/public/emgData"+"/"+Object.values(result[i]), {encoding:'utf8', flag:'r'}));
             for(let i = 0; i < data.sets.length; i++) data.sets[i].emg_data = data.sets[i].emg_data.substring(1, data.sets[i].emg_data.length-1).split(",").map(Number);

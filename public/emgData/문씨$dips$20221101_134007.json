@@ -1,0 +1,48 @@
+{
+    "nickname": "문씨",
+    "workout_name": "dips",
+    "measured_muscle": "chest",
+    "starting_time": "20221101_134007",
+    "sensing_interval": 200,
+    "number_of_sets": 5,
+    "total_workout_time": 34374,
+    "maximum_value_of_sets": 209,
+    "minimum_value_of_sets": 14,
+    "sets": [
+        {
+            "time": 4109,
+            "break_time": 3847,
+            "maximum_value_of_set": 125,
+            "minimum_value_of_set": 14,
+            "emg_data": "[14.0, 14.0, 15.0, 37.0, 48.0, 30.0, 125.0, 24.0, 18.0, 105.0, 18.0, 15.0, 14.0, 14.0]"
+        },
+        {
+            "time": 4102,
+            "break_time": 2638,
+            "maximum_value_of_set": 117,
+            "minimum_value_of_set": 14,
+            "emg_data": "[16.0, 14.0, 88.0, 41.0, 15.0, 57.0, 117.0, 29.0, 21.0, 66.0, 94.0, 21.0, 17.0, 15.0]"
+        },
+        {
+            "time": 4600,
+            "break_time": 3431,
+            "maximum_value_of_set": 185,
+            "minimum_value_of_set": 14,
+            "emg_data": "[16.0, 14.0, 64.0, 185.0, 42.0, 19.0, 67.0, 134.0, 32.0, 15.0, 52.0, 125.0, 83.0, 23.0, 17.0]"
+        },
+        {
+            "time": 4105,
+            "break_time": 2937,
+            "maximum_value_of_set": 209,
+            "minimum_value_of_set": 16,
+            "emg_data": "[16.0, 22.0, 129.0, 77.0, 19.0, 24.0, 168.0, 40.0, 18.0, 42.0, 209.0, 61.0, 23.0]"
+        },
+        {
+            "time": 4603,
+            "break_time": 1,
+            "maximum_value_of_set": 102,
+            "minimum_value_of_set": 17,
+            "emg_data": "[20.0, 32.0, 102.0, 75.0, 21.0, 21.0, 99.0, 21.0, 17.0, 22.0, 42.0, 58.0, 88.0, 42.0, 18.0]"
+        }
+    ]
+}

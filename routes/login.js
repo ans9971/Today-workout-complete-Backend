@@ -68,20 +68,13 @@ router.post('/api/join', (req, res) => {
     // 프로필 이미지 저장 및 경로 빼오기
     const profile_img_path = 'default'
     const sql = "INSERT INTO memberinfo VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, '1', default, default, null, null, 1, 1,?)"
-
     const randomSalt=crypto.randomBytes(32).toString("hex");
     const cryptedmail=crypto.pbkdf2Sync(req.body.mail,"salt",65536, 32, "sha512").toString("hex");
     const cryptedpassword = crypto.pbkdf2Sync(req.body.password,"salt",65536, 32, "sha512").toString("hex");
     const passwordWithSalt=cryptedpassword+"$"+cryptedmail;
-    // console.log(randomSalt);
-    // const passwordWithSalt=cryptedpassword;
-
     const parameterList = [req.body.mail, passwordWithSalt, req.body.name,  req.body.introduction,
         req.body.phonenumber, req.body.address, req.body.sex, req.body.nickname,  profile_img_path, randomSalt]
-
-    console.log(req.body);
-    console.log("비밀번호는 "+passwordWithSalt);
-
+    console.log(req.body)
     accessDB_post(req, res, sql, parameterList)
 })
 

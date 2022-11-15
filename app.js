@@ -4,6 +4,7 @@ const port = 3000
 const mysql = require('mysql')
 const path = require('path')
 // const bodyParser = require('body-parser')
+// const indexRouter = require('./routes/index')
 const loginRouter = require('./routes/login')
 const myPageRouter = require('./routes/mypage')
 const communityRouter = require('./routes/community')
@@ -56,18 +57,21 @@ const con = mysql.createConnection({
   database: 'today_workout_complete',
 });
 
+
 app.use(express.static('public'))
 // application/json
 app.use(express.json());
 // application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }))
 // app.use('/api/login', loginRouter)
-app.use(emailauthRouter)
+
 
 // 라우터 설정
+// app.use(indexRouter);
 app.use(loginRouter)
 app.use(communityRouter)
 app.use(myPageRouter)
+app.use(emailauthRouter)
 
 // 0. 연결 확인 코드
 con.connect(function(err) {
