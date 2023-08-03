@@ -2,18 +2,18 @@ const express = require('express');
 const path = require('path');
 const multer = require('multer');
 const router = express.Router();
-
+const fs = require('fs');
 const mysql = require('mysql')
 const con = mysql.createConnection({
   host: 'localhost',
   user: 'workout',
   password: '1234',
-  database: 'Today_workout_complete',
+  database: 'today_workout_complete',
 });
+const mailAuthDefault = " ";
 
-
-const PROFILE_IMG_DIR = 'public/img/userProfile';
-const POST_IMG_DIR = 'public/img/postPhoto';
+const PROFILE_IMG_DIR = '/root/TWC-BACKEND-BACKUP/public/img/userProfile';
+const POST_IMG_DIR = '/root/TWC-BACKEND-BACKUP/public/img/postPhoto';
 
 let storage  = multer.diskStorage({
     destination(req, file, cb) {
@@ -27,6 +27,7 @@ let storage  = multer.diskStorage({
 });
   
 let upload = multer({ storage: storage });
+
 
 async function clean(file){
     fs.unlink(file, function(err){
@@ -86,15 +87,16 @@ router.get('/api/getBoard', (req, res) => {
 //커뮤니티 게시글 최신순부터 나열
 router.get('/api/showPostDesc',(req,res) => {
   const sql = 'SELECT * FROM post ORDER BY creation_datetime desc limit ?,? '
-  const parameterList=[parseInt(req.query.limit), parseInt(req.query.limit)+9]
-
+  const parameterList=[parseInt(req.query.limit), 9]
+  console.log(req.query.limit);
   accessDB_get(req, res, sql, parameterList)
 })
 
 //커뮤니티 게시글 오래된순부터 나열
 router.get('/api/showPostAsc',(req,res) => {
   const sql = 'SELECT * FROM post ORDER BY creation_datetime asc limit ?,?'
-  const parameterList=[parseInt(req.query.limit),parseInt(req.query.limit)+9]
+  const parameterList=[parseInt(req.query.limit),9]
+  
   accessDB_get(req, res, sql, parameterList)
 })
 
@@ -102,11 +104,11 @@ router.get('/api/showPostAsc',(req,res) => {
 router.get('/api/getPostAll',(req, res)=>{
 
   const sql = "SELECT * FROM post where board_id =? limit ?,?"
-  const parameterList =[parseInt(req.query.board_id), parseInt(req.query.limit), parseInt(req.query.limit) + 1000]
-  console.log(req.query);
-  console.log(parameterList);
+  const parameterList =[parseInt(req.query.board_id), parseInt(req.query.limit), 1000]
+  // console.log(req.query);
+  // console.log(parameterList);
 
-  console.log(req.path);
+  // console.log(req.path);
   accessDB_get(req, res, sql, parameterList)
 
 })
@@ -155,12 +157,13 @@ router.get('/api/showComments',(req,res)=>{
 
 // 7. 게시물 제목 검색 기능 코드
 router.get('/api/searchTitle',(req,res)=>{
-
+  console.log("-------------------1-");
   console.log(req.query);
+  console.log("------------------2-");
 
-  const sql = "select * from post where title LIKE " + "'%"+req.query.title+"%'"
+  const sql = "select * from post where title LIKE " + "'%"+req.query.title+"%' ORDER BY creation_datetime DESC"
   console.log(sql);
-  
+  console.log("------------------3-");
   con.query(sql ,function(err, result, fields){
     if (err) {
       console.log(err);
@@ -184,50 +187,10 @@ router.delete('/api/deletePost', (req, res) => {
   accessDB_post(req, res, sql, parameterList);
 })
 
-// 게시글 수정
-// router.patch('/api/updatePost', upload.single('photographic_path'), function(req,res){ 
-//   const sql = "update post set title = ?, comment = ?, photographic_path = ?  where post_id = ?";
-//   console.log('body 데이터', req.body);
-//   console.log('file 데이터', req.file);
-//   let defaultphotographicfile='default.png'
-//   // console.log("bbbbbbb");
-//   if(req.file!=undefined){
-//     newFileName = req.file.filename
-//   }else{
-//       newFileName=defaultphotographicfile
-//   }
-//   if(newFileName==undefined){
-//     newFileName = defaultphotographicfile
-//   }
-//  // 기존 이미지 파일 삭제 코드
-//   console.log(PROFILE_IMG_DIR+'/' + req.body.photographic_path);
-//   if(req.body.photographic_path != undefined){
-//       newFileName=photographic_path;
-//       clean(PROFILE_IMG_DIR + '/' + req.body.photographic_path);
-      
-//   }
-//   const parameterList =[req.body.title, req.body.comment, newFileName,req.body.post_id];
-//   console.log('수정 데이터', parameterList);
-//   con.query(sql, parameterList, async function (err, result, fields) {
-//     if (err) {
-//         console.log(err);
-//     } else if(result == undefined) {
-//         res.send("failure")
-//     } else {
-//         console.log(result);
-//         if(req.file!=undefined){
-//             res.send({profile_img_path: req.file.filename})
-//         }else{
-//             res.send({profile_img_path: 'default.png'})
-//         }
-//     }
-//   });
-// });
-
 // 5. 게시글 생성
 router.post('/api/createPost', upload.single('photographic_path'), (req, res)=>{
   
-  const sql = "INSERT INTO post VALUES (NULL, ?, ?, ?, ?, ?, ?, DEFAULT,NULL,NULL, DEFAULT, DEFAULT,?,DEFAULT,DEFAULT,?,?)"
+  const sql = "INSERT INTO post VALUES (NULL, ?, ?, ?, ?, ?, ?, DEFAULT,NULL,NULL, DEFAULT, DEFAULT, ?, DEFAULT, ?, ?)"
 
   console.log(req.body);
   console.log(req.file);
@@ -241,7 +204,7 @@ router.post('/api/createPost', upload.single('photographic_path'), (req, res)=>{
     newFileName = defaultphotographicfile
   }
   
-  const parameterList =[req.body.board_id, req.body.nickname, req.body.title, req.body.content, req.ip, newFileName, req.body.availabilty_comments,,req.body.likes, req.body.chartname];
+  const parameterList =[req.body.board_id, req.body.nickname, req.body.title, req.body.content, req.ip, newFileName, req.body.availabilty_comments, req.body.likes, req.body.chartname];
 
   console.log(req.body);
   accessDB_post(req, res, sql, parameterList)
@@ -250,11 +213,10 @@ router.post('/api/createPost', upload.single('photographic_path'), (req, res)=>{
 
 // 게시글 수정
 router.patch('/api/updatePost', upload.single('photographic_path'), function(req,res){ 
-  const sql = "update post set title = ?, comment = ?, photographic_path = ?, chartname = ?  where post_id = ?";
+  const sql = "update post set title = ?, comment = ?, photographic_path = ?, emg_data_file = ?  where post_id = ?";
   console.log('body 데이터', req.body);
   console.log('file 데이터', req.file);
   let defaultphotographicfile='default.png'
-  // console.log("bbbbbbb");
   if(req.file!=undefined){
     newFileName = req.file.filename
   }else{
@@ -266,11 +228,12 @@ router.patch('/api/updatePost', upload.single('photographic_path'), function(req
  // 기존 이미지 파일 삭제 코드
   console.log(PROFILE_IMG_DIR+'/' + req.body.photographic_path);
   if(req.body.photographic_path != undefined){
-      newFileName=photographic_path;
+      newFileName=req.body.photographic_path;
       clean(PROFILE_IMG_DIR + '/' + req.body.photographic_path);
-      
+  }else{
+    req.body.photographic_path=defaultphotographicfile;
   }
-  const parameterList =[req.body.title, req.body.comment, newFileName,req.body.chartname , req.body.post_id];
+  const parameterList =[req.body.title, req.body.comment, newFileName, req.body.chartname , req.body.post_id];
   console.log('수정 데이터', parameterList);
   con.query(sql, parameterList, async function (err, result, fields) {
     if (err) {
@@ -280,9 +243,9 @@ router.patch('/api/updatePost', upload.single('photographic_path'), function(req
     } else {
         console.log(result);
         if(req.file!=undefined){
-            res.send({profile_img_path: req.file.filename})
+            res.send({photographic_path: req.file.filename})
         }else{
-            res.send({profile_img_path: 'default.png'})
+            res.send({photographic_path: 'default.png'})
         }
     }
   });
@@ -302,37 +265,6 @@ router.delete('/api/deleteComment', (req,res)=>{
   accessDB_post(req, res, sql, parameterList);
 })
 
-//댓글 개수 카운트
-router.get('/api/countComments',(req,res)=>{
-  const sql='select count(comments_id) from comments where post_id=?'
-  const parameterList=[req.body.post_id]
-  accessDB_get(req, res, sql, parameterList)
-})
-
-// 각 카테고리 게시물만 보기
-router.get('/api/showAnotherBoard', (req,res) => {
-  const sql= 'select * from post where board_id=?'
-  const parameterList =[req.query.board_id]
-  console.log(req.body);
-  accessDB_get(req, res, sql, parameterList)
-});
-
-router.get('/api/myPagePost',(req,res)=>{
-  const sql = 'select * from post where nickname =? limit ?,?'
-  const parameterList=[req.query.nickname, parseInt(req.query.limit),parseInt(req.query.limit) + 9]
-  accessDB_get(req, res, sql, parameterList)
-})
-
-
-//게시물 좋아요 누가눌렀는지
-router.get('/api/likePostWho',(req,res)=>{
-  const sql = 'select nickname from likes where post_id=?'
-  //let post_id = 123;
-  const parameterList = req.query.post_id;
-  console.log('list', parameterList);
-  accessDB_get(req,res,sql,parameterList)
-})
-
 //게시물 좋아요 개수
 router.get('/api/likePostCount',(req,res)=>{
   const sql = 'select count(nickname) from likes where post_id = ?'
@@ -340,9 +272,40 @@ router.get('/api/likePostCount',(req,res)=>{
   accessDB_get(req,res,sql,parameterList)
 })
 
+//댓글 개수 카운트
+router.get('/api/countComments',(req,res)=>{
+  const sql = 'select count(comments_id) AS comments_count from comments where post_id=?'
+  const parameterList=[req.query.post_id]
+  accessDB_get(req, res, sql, parameterList)
+})
+
+// 각 카테고리 게시물만 보기
+router.get('/api/showAnotherBoard', (req,res) => {
+  const sql= 'select * from post where board_id=? order by creation_datetime desc'
+  const parameterList =[req.query.board_id]
+  console.log(req.body);
+  accessDB_get(req, res, sql, parameterList)
+});
+
+router.get('/api/myPagePost',(req,res) => {
+  const sql = 'select * from post where nickname = ? ORDER BY creation_datetime desc limit ?,?'
+  const parameterList=[req.query.nickname, parseInt(req.query.limit), 9]
+  accessDB_get(req, res, sql, parameterList);
+})
+
+//게시물 좋아요 누가눌렀는지
+router.get('/api/likePostWho',(req,res)=>{
+  const sql = 'select nickname from likes where post_id=?'
+  const parameterList = req.query.post_id;
+  console.log('list', parameterList);
+  accessDB_get(req,res,sql,parameterList)
+})
+
+
+
 //좋아요 플러스
 router.post('/api/likesPlus',(req,res)=>{
-  const sql = 'insert into Likes values (?, ?)'
+  const sql = 'insert into likes values (?, ?)'
   const parameterList = [req.body.post_id,req.body.nickname]
   accessDB_post(req,res,sql,parameterList)
 })
@@ -351,7 +314,7 @@ router.post('/api/likesPlus',(req,res)=>{
 router.delete('/api/likesMinus',(req,res)=>{
   const sql = 'delete from likes where post_id=? and nickname = ?'
   const parameterList = [req.query.post_id,req.query.nickname]
-  accessDB_post(req,res,sql,parameterList) // 함수가 없눼..
+  accessDB_post(req,res,sql,parameterList)
 })
 
 //조회수 플러스
@@ -361,6 +324,55 @@ router.post('/api/viewPlus',(req,res)=>{
   accessDB_post(req, res, sql, parameterList)
 })
 
+
+
+const nodemailer = require('nodemailer');
+const ejs = require('ejs');
+var appDir = path.dirname(require.main.filename);
+
+
+router.post('/api/mailauth', async(req, res) => {
+    let authNum = Math.random().toString().substr(2,6);
+    mailAuthDefault = authNum;
+    let emailTemplete;
+    ejs.renderFile(appDir+'/template/authMail.ejs', {authCode : authNum}, function (err, data) {
+      if(err){console.log(err)}
+      emailTemplete = data;
+    });
+
+    let transporter = nodemailer.createTransport({
+        service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false,
+        auth: {
+            user: "todayworkoutcomplete@gmail.com",
+            pass: "dblab!23",
+        },
+    });
+
+    let mailOptions = await transporter.sendMail({
+        from: `오운완`,
+        to: req.body.mail,
+        subject: '[오늘운동완료] 비밀번호재설정을 위한 인증번호',
+        html: emailTemplete,
+    });
+
+
+    transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+            console.log(error);
+        }
+        console.log("Finish sending email : " + info.response);
+        res.send(authNum);
+        transporter.close()
+    });
+});
+
+router.get('/api/authRes',(req,res)=>{
+  res.send(mailAuthDefault);
+  console.log(mailAuthDefault);
+})
 
 // POST 방식 DB 접근 함수
 function accessDB_post(req, res, sql, parameterList) {
@@ -406,15 +418,18 @@ function accessDB_get(req, res, sql, parameterList) {
       console.log(result, req.path);
       switch (req.path){
           case '/api/getPost':
-              console.log('getPost');
-              res.send(result);
-              break;
+            console.log('getPost');
+            res.send(result);
+            break;
           case '/api/getPostAll':
-              console.log('getPostAll');
-              res.send(result);
-              break;
+            console.log('getPostAll');
+            res.send(result);
+            break;
+          case '/api/myPagePost':
+            console.log('myPagePost');
+            res.send(result);
+            break;
           default:
-              // result = "success"
               res.send(result)
               console.log('whowhowho', result);
               break;
@@ -455,4 +470,6 @@ con.query(sql, parameterList, async function (err, result, fields) {
       }
   });
 }
+
+
 module.exports = router;

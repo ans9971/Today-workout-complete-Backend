@@ -1,0 +1,62 @@
+{
+    "nickname": "문씨",
+    "workout_name": "dips",
+    "measured_muscle": "shoulder",
+    "starting_time": "20221101_134822",
+    "sensing_interval": 500,
+    "number_of_sets": 5,
+    "total_workout_time": 68154,
+    "maximum_value_of_sets": 261,
+    "minimum_value_of_sets": 17,
+    "sets": [
+        {
+            "time": 4416,
+            "break_time": 2435,
+            "maximum_value_of_set": 160,
+            "minimum_value_of_set": 15,
+            "emg_data": "[16.0, 29.0, 92.0, 44.0, 21.0, 15.0, 71.0, 68.0, 27.0, 16.0, 48.0, 160.0, 55.0, 25.0, 23.0]"
+        },
+        {
+            "time": 4099,
+            "break_time": 2348,
+            "maximum_value_of_set": 161,
+            "minimum_value_of_set": 14,
+            "emg_data": "[14.0, 17.0, 115.0, 161.0, 38.0, 22.0, 30.0, 115.0, 78.0, 20.0, 40.0, 110.0, 32.0, 15.0]"
+        },
+        {
+            "time": 5593,
+            "break_time": 3839,
+            "maximum_value_of_set": 261,
+            "minimum_value_of_set": 14,
+            "emg_data": "[15.0, 14.0, 47.0, 261.0, 204.0, 39.0, 22.0, 20.0, 87.0, 112.0, 70.0, 21.0, 21.0, 27.0, 66.0, 108.0, 32.0, 22.0, 14.0]"
+        },
+        {
+            "time": 5621,
+            "break_time": 3725,
+            "maximum_value_of_set": 161,
+            "minimum_value_of_set": 14,
+            "emg_data": "[16.0, 15.0, 68.0, 161.0, 44.0, 15.0, 14.0, 14.0, 97.0, 109.0, 25.0, 14.0, 75.0, 114.0, 139.0, 35.0, 15.0, 14.0, 14.0]"
+        },
+        {
+            "time": 5725,
+            "break_time": 1,
+            "maximum_value_of_set": 187,
+            "minimum_value_of_set": 17,
+            "emg_data": "[17.0, 23.0, 98.0, 187.0, 153.0, 142.0, 53.0, 21.0, 82.0, 99.0, 121.0, 113.0, 29.0, 21.0, 53.0, 138.0, 132.0, 38.0, 24.0]"
+        },
+        {
+            "time": 5725,
+            "break_time": 23932,
+            "maximum_value_of_set": 187,
+            "minimum_value_of_set": 17,
+            "emg_data": "[]"
+        },
+        {
+            "time": 6418,
+            "break_time": 1,
+            "maximum_value_of_set": 206,
+            "minimum_value_of_set": 16,
+            "emg_data": "[45.0, 127.0, 122.0, 27.0, 18.0, 17.0, 43.0, 94.0, 175.0, 66.0, 19.0, 16.0, 18.0, 106.0, 206.0, 81.0, 27.0, 17.0, 188.0, 101.0, 26.0]"
+        }
+    ]
+}

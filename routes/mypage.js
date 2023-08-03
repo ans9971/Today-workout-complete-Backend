@@ -4,14 +4,17 @@ const multer = require('multer');
 const router = express.Router();
 const fs = require('fs')
 const mysql = require('mysql')
+const readFile = require('filereader')
+
+const crypto = require('crypto');
 const con = mysql.createConnection({
   host: 'localhost',
   user: 'workout',
   password: '1234',
-  database: 'Today_workout_complete',
+  database: 'today_workout_complete',
 });
 
-const PROFILE_IMG_DIR = '../public/img/userProfile';
+const PROFILE_IMG_DIR = '/root/TWC-BACKEND-BACKUP/public/img/userProfile';
 const EMG_DATA_DIR = 'public/emgData';
 
 let storage  = multer.diskStorage({
@@ -24,40 +27,16 @@ let storage  = multer.diskStorage({
         cb(null, `${req.body.mail}_${file.originalname}`);
     },
 });
-  
+
 let upload = multer({ storage: storage });
-
-// EMG DATA 저장
-router.post('/api/emgData', (req, res) => {
-    console.log(req.body);
-    const emgData = JSON.stringify(req.body)
-    const emgDataFile = `${req.body.nickname}_${req.body.starting_time}.json`
-
-    fs.writeFileSync(`${EMG_DATA_DIR}/${emgDataFile}`, emgData)
-    
-    // DB 저장
-    const sql = "INSERT INTO sensordata VALUES (?,DEFAULT, ?)"
-    const parameterList = [req.body.nickname, emgDataFile]
-
-    con.query(sql, parameterList, function (err, row, fields){
-      let checkNickname;
-      checkNickname=false;
-      console.log(row);
-      if(err){
-        console.log(err);
-        res.send("faile")
-      } else{
-        console.log(row);
-        res.send("success")
-      }
-    })
-});
 
 // 센서데이터
 router.get('/api/sensorData',(req,res)=>{
-  const sql = "select emg_data_path from SensorData where nickname =?"
+  
+  const sql = "select emg_data_path from sensordata where nickname =?"
   const parameterList=[req.query.nickname]
   accessDB_get(req, res, sql, parameterList)
+  
   console.log(req.query);
 })
 
@@ -95,10 +74,107 @@ router.post('/api/checkPassword',(req, res) =>{
     }
   })
 })
+
+router.get('/api/sendEmgData',(req,res)=>{
+  const sql='select emg_data_path from sensordata where nickname = ?'
+  parameterList=[req.query.nickname]
+  // const data = fs.readFileSync("/root/TWC-BACKEND-BACKUP/public/emgData"+"/"+Object.values(req.query), {encoding:'utf8', flag:'r'});
+  // JSON.stringify(data)
+  
+  con.query(sql, parameterList, function (err, result, fields){
+    // console.log(row);
+    if(err){
+      console.log(err);
+      res.send("faile")
+    } else{
+      console.log(req.query);
+
+      let emgList=[];
+      if(req.query.Year == undefined){          // 다른 사람 운동 데이터 1개 가져오기
+        let data = JSON.parse(fs.readFileSync("/root/TWC-BACKEND-BACKUP/public/emgData"+"/"+Object.values(result[result.length-1]), {encoding:'utf8', flag:'r'}));
+        for(let i = 0; i < data.sets.length; i++) data.sets[i].emg_data = data.sets[i].emg_data.substring(1, data.sets[i].emg_data.length-1).split(",").map(Number);
+        console.log(data);
+        emgList.push(data);
+      } else {                                  // 캘린더 나의 운동 데이터 가져오기
+        for(let i = 0;i<result.length;i++){
+          let emgPath = Object.values(result[i]);
+          console.log('emgPath: ' + emgPath);
+          let emgDate = emgPath[0].split('\$');
+          console.log('emgDate: ' + emgDate[2]);
+          let emgYear = emgDate[2].substring(0,4);
+          let emgMonth = emgDate[2].substring(4,6);
+          let emgDay = emgDate[2].substring(6,8);
+          if(emgYear.includes(req.query.Year) && emgMonth.includes(req.query.Month) && emgDay.includes(req.query.Day)){
+            console.log(emgYear+emgMonth+emgDay);
+            let data = JSON.parse(fs.readFileSync("/root/TWC-BACKEND-BACKUP/public/emgData"+"/"+Object.values(result[i]), {encoding:'utf8', flag:'r'}));
+            for(let i = 0; i < data.sets.length; i++) data.sets[i].emg_data = data.sets[i].emg_data.substring(1, data.sets[i].emg_data.length-1).split(",").map(Number);
+            console.log(data);
+            emgList.push(data);
+          }
+        }
+      }
+      console.log(JSON.stringify(emgList));
+      res.send(emgList);
+    }
+  })
+})
+
+router.get('/api/myEmgDataList', (req, res, next) => {
+  const sql='SELECT emg_data_path FROM sensordata WHERE nickname = ?'
+  parameterList=[req.query.nickname]
+  
+  con.query(sql, parameterList, function (err, result, fields){
+    if(err){
+      console.log(err);
+      res.send("faile")
+    } else{
+      console.log(result);
+      res.send(result);
+    }
+  })
+})
+
+router.get('/api/likedPost', (req, res, next) => {
+  let sql;
+  if(req.query.is_web){
+    sql='SELECT * FROM post INNER JOIN likes ON post.post_id = likes.post_id WHERE likes.nickname = ? and post.board_id = ?'
+  } else {
+    sql='SELECT title AS title, post.emg_data_file as emg_data_file  FROM post INNER JOIN likes ON post.post_id = likes.post_id WHERE likes.nickname = ? and post.board_id = ? and emg_data_file IS NOT NULL'
+  }
+  
+  parameterList=[req.query.nickname, req.query.board_id]
+  
+  con.query(sql, parameterList, function (err, result, fields){
+    if(err){
+      console.log(err);
+      res.send("faile")
+    } else{
+      console.log(result);
+      res.send(result);
+    }
+  })
+})
+
+router.get('/api/likedEmgData', (req, res, next) => {
+  const likedEmgData = JSON.parse(fs.readFileSync("/root/TWC-BACKEND-BACKUP/public/emgData"+"/"+req.query.emgDataFileName, {encoding:'utf8', flag:'r'}));
+  for(let i = 0; i < likedEmgData.sets.length; i++) likedEmgData.sets[i].emg_data = likedEmgData.sets[i].emg_data.substring(1, likedEmgData.sets[i].emg_data.length-1).split(",").map(Number);
+  console.log(JSON.stringify(likedEmgData));
+  res.send(likedEmgData);
+})
+
+
 //비밀번호 변경
 router.patch('/api/updatePassword',(req, res)=>{
     const sql = 'update memberinfo set password=? where mail=?';
-    const parameterList = [req.body.password, req.body.mail]
+
+    
+    //const randomSalt=crypto.randomBytes(32).toString("hex");
+    const cryptedmail=crypto.pbkdf2Sync(req.body.mail,"salt",65536, 32, "sha512").toString("hex");
+    const cryptedpassword = crypto.pbkdf2Sync(req.body.password,"salt",65536, 32, "sha512").toString("hex");
+    const passwordWithSalt=cryptedpassword+"$"+cryptedmail;
+    // const passwordWithSalt=cryptedpassword+"$"+randomSalt;
+    
+    const parameterList = [passwordWithSalt, req.body.mail]
     accessDB_post(req, res, sql, parameterList);
 })
 
@@ -131,12 +207,12 @@ router.patch('/api/updateMyInfo', upload.single('profileImage'), function(req,re
 router.post('/api/myPage/emgData', (req, res) => {
   console.log(req.body);
   const emgData = JSON.stringify(req.body)
-  const emgDataFile = `${req.body.nickname}_${req.body.starting_time}.json`
+  const emgDataFile = `${req.body.nickname}$${req.body.workout_name}$${req.body.starting_time}.json`
 
   fs.writeFileSync(`${EMG_DATA_DIR}/${emgDataFile}`, emgData)
   
   // DB 저장
-  const sql = "INSERT INTO sensordata VALUES (?,DEFAULT, ?)"
+  const sql = "INSERT INTO sensordata VALUES (?, DEFAULT, ?)"
   const parameterList = [req.body.nickname, emgDataFile]
 
   con.query(sql, parameterList, function (err, row, fields){
@@ -180,37 +256,55 @@ router.get('/api/userInfo',(req,res)=>{
 
 
 
-router.post('/api/emgData', (req, res) => {
-  console.log(req.body);
-  const emgData = JSON.stringify(req.body)
-  const emgDataFile = `${req.body.nickname}_${req.body.starting_time}.json`
+// router.post('/api/emgData', (req, res) => {
+//   console.log(req.body);
+//   const emgData = JSON.stringify(req.body)
+//   const emgDataFile = `${req.body.nickname}_${req.body.starting_time}.json`
 
-  fs.writeFileSync(`${EMG_DATA_DIR}/${emgDataFile}`, emgData)
+//   fs.writeFileSync(`${EMG_DATA_DIR}/${emgDataFile}`, emgData)
   
-  // DB 저장
-  const sql = "INSERT INTO sensordata VALUES (?,DEFAULT, ?)"
-  const parameterList = [req.body.nickname, emgDataFile]
+//   // DB 저장
+//   const sql = "INSERT INTO sensordata VALUES (?,DEFAULT, ?)"
+//   const parameterList = [req.body.nickname, emgDataFile]
 
-  con.query(sql, parameterList, function (err, row, fields){
-    let checkNickname;
-    checkNickname=false;
-    console.log(row);
-    if(err){
-      console.log(err);
-      res.send("faile")
-    } else{
-      console.log(row);
-      res.send("success")
-    }
-  })
-});
+//   con.query(sql, parameterList, function (err, row, fields){
+//     let checkNickname;
+//     checkNickname=false;
+//     console.log(row);
+//     if(err){
+//       console.log(err);
+//       res.send("faile")
+//     } else{
+//       console.log(row);
+//       res.send("success")
+//     }
+//   })
+// });
+
+
+
+router.get('/api/calendarEmgDate',(req,res)=>{
+  const sql = 'select emg_data_path from sensordata where nickname=?'
+
+  const parameterList =[req.query.nickname]
+  // console.log(req.query);
+  accessDB_get(req, res, sql, parameterList);
+})
+
+
+
 
 //유저정보삭제
 router.delete('/api/deleteUserInfo', (req,res)=>{
     const sql = 'delete from memberinfo where mail= ?'
-    const parameterList=[req.body.mail]
+
+    const parameterList=[req.query.mail]
+
+    console.log(req.query.mail);
     accessDB_post(req, res, sql, parameterList);
 })
+
+
 // GET 방식 DB 접근 함수
 function accessDB_get(req, res, sql, parameterList) {
   
@@ -221,6 +315,12 @@ function accessDB_get(req, res, sql, parameterList) {
     } else if(result == undefined) {
       console.log('-----undefined----');
       res.send("failure")
+    } else if(result=="a"){
+      //result
+      const jsonfile = fs.readFile("../public/emgData"+result);
+      console.log('aa', result);
+      
+      // GET /emgData/얍_20221018_162803_333.json
     } else {
       console.log("쿼리 결과");
       console.log(result, req.path);
