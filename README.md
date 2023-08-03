@@ -5,7 +5,7 @@
 운동 지식을 서로 공유하는 커뮤니티를 통해 운동을 도와주는 헬스 플랫폼입니다.
 
 ### 프로젝트 보고서
-https://gigantic-text-665.notion.site/ea051c304d364d669da1006d848a8f99
+https://gigantic-text-665.notion.site/acac455f464e454f85355d6755e00e11?pvs=4
 
 
 ## 전체 시연 영상
